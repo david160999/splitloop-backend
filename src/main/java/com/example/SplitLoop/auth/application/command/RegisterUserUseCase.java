@@ -1,0 +1,21 @@
+package com.example.SplitLoop.auth.application.command;
+
+import com.example.SplitLoop.auth.controller.request.RegisterRequest;
+import com.example.SplitLoop.auth.controller.response.TokenResponse;
+import com.example.SplitLoop.auth.domain.service.AuthService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class RegisterUserUseCase {
+
+    private final AuthService authService;
+
+    @Transactional
+    public TokenResponse execute(RegisterRequest request) {
+
+        return authService.register(request);
+    }
+}
