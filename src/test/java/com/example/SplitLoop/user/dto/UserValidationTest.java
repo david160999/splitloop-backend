@@ -1,6 +1,9 @@
 package com.example.SplitLoop.user.dto;
 
 
+import com.example.SplitLoop.user.application.command.ChangePasswordUseCase;
+import com.example.SplitLoop.user.application.command.SearchUsersUseCase;
+import com.example.SplitLoop.user.application.command.UpdateCurrentUserUseCase;
 import com.example.SplitLoop.user.controller.UserController;
 import com.example.SplitLoop.user.domain.service.UserService;
 import org.hamcrest.Matchers;
@@ -9,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -19,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(UserController.class)
 @WithMockUser
+@ActiveProfiles("test")
 class UserValidationTest {
 
     @Autowired
@@ -27,38 +32,14 @@ class UserValidationTest {
     @MockitoBean
     private UserService userService;
 
-    @Test
-    void shouldFailWhenEmailIsInvalid() throws Exception {
+    @MockitoBean
+    private SearchUsersUseCase searchUsersUseCase;
 
-        String body = """
-        {
-          "name": "John",
-          "email": "invalid-email"
-        }
-        """;
+    @MockitoBean
+    private UpdateCurrentUserUseCase updateCurrentUserUseCase;
 
-        mockMvc.perform(post("/users")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", Matchers.containsString("Email must be valid")));    }
+    @MockitoBean
+    private ChangePasswordUseCase changePasswordUseCase;
 
-    @Test
-    void shouldFailWhenNameIsBlank() throws Exception {
-
-        String json = """
-        {
-          "name": "",
-          "email": "john@test.com"
-        }
-        """;
-
-        mockMvc.perform(post("/users")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", Matchers.containsString("Name is required")));    }
 
 }

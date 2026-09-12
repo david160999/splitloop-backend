@@ -1,4 +1,4 @@
-package com.example.SplitLoop.balance;
+package com.example.SplitLoop.balance.controller;
 
 import com.example.SplitLoop.balance.application.query.GetBalancesUseCase;
 import com.example.SplitLoop.balance.application.query.GetDebtsUseCase;

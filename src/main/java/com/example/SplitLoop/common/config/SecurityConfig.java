@@ -2,6 +2,8 @@ package com.example.SplitLoop.common.config;
 
 import com.example.SplitLoop.auth.domain.entity.Token;
 import com.example.SplitLoop.auth.domain.repository.TokenRepository;
+import com.example.SplitLoop.auth.domain.service.JwtService;
+import com.example.SplitLoop.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -24,13 +27,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Profile("prod")
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final TokenRepository tokenRepository;
 
+    @Bean
+    JwtAuthFilter jwtAuthFilter(JwtService jwtService, UserDetailsService userDetailsService, TokenRepository tokenRepository, UserRepository userRepository
+    ) {
+        return new JwtAuthFilter(jwtService, userDetailsService, tokenRepository, userRepository
+        );
+    }
 
     @Bean
-    SecurityFilterChain security(HttpSecurity http) throws Exception {
+    SecurityFilterChain security(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
 
         http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -40,7 +48,7 @@ public class SecurityConfig {
                                 .anyRequest()
                                 .authenticated())
 
-                .sessionManagement(session->
+                .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider)
