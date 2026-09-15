@@ -12,12 +12,10 @@ public class CreateUserRequest {
 
     @NotBlank(message = "Name is required")
     @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
-    @Builder.Default
-    private String name = "John";
+    private String name;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
     @Size(max = 255)
-    @Builder.Default
-    private String email = "john@test.com";
+    private String email;
 }

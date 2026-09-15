@@ -360,13 +360,13 @@ Ejecutar la suite de tests:
 ### Linux / macOS
 
 ```bash
-./mvnw test
+  ./mvnw test
 ```
 
 ### Windows
 
 ```bash
-mvnw.cmd test
+  mvnw.cmd test
 ```
 
 El proyecto también incorpora:
@@ -503,13 +503,13 @@ No utilices valores reales de producción en este archivo.
 ## 3. Start PostgreSQL
 
 ```bash
-docker compose up -d
+  docker compose up -d
 ```
 
 Comprueba que el contenedor está ejecutándose:
 
 ```bash
-docker ps
+  docker ps
 ```
 
 PostgreSQL estará disponible desde el host en:

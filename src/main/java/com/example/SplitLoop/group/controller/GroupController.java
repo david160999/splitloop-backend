@@ -1,10 +1,10 @@
 package com.example.SplitLoop.group.controller;
 
+import com.example.SplitLoop.group.application.command.*;
 import com.example.SplitLoop.group.application.query.GetGroupMembersUseCase;
 import com.example.SplitLoop.group.application.query.GetGroupSummaryUseCase;
 import com.example.SplitLoop.group.application.query.GetGroupUseCase;
 import com.example.SplitLoop.group.application.query.GetGroupsByUserUseCase;
-import com.example.SplitLoop.group.application.usecase.*;
 import com.example.SplitLoop.group.controller.query.GetGroupMembersQuery;
 import com.example.SplitLoop.group.controller.query.GetGroupsByUserQuery;
 import com.example.SplitLoop.group.controller.request.*;
@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -68,7 +67,7 @@ public class GroupController {
     @Operation(summary = "Update group")
     public ResponseEntity<GroupResponse> updateGroup(
             @PathVariable UUID groupId,
-            @Valid @RequestBody UpdateGroupRequest request) throws BadRequestException {
+            @Valid @RequestBody UpdateGroupRequest request){
 
         return ResponseEntity.ok(updateGroupUseCase.execute(groupId, request));
     }

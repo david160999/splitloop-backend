@@ -14,7 +14,7 @@ public interface GroupService {
     //Group Service//
     Group createGroup(User creator, String name);
 
-    void updateGroup(Group group, String name, String description) throws BadRequestException;
+    void updateGroup(Group group, String name, String description);
 
     void deleteGroup(Group group, User currentUser);
 

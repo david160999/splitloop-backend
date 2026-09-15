@@ -53,12 +53,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void updateGroup(Group group, String name, String description) throws BadRequestException {
-
-        if (name == null || name.isBlank()) {
-            throw new BadRequestException();
-        }
-
+    public void updateGroup(Group group, String name, String description){
         group.setName(name);
         group.setDescription(description);
     }

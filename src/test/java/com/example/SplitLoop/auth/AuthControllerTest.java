@@ -7,7 +7,6 @@ import com.example.SplitLoop.auth.controller.AuthController;
 import com.example.SplitLoop.auth.controller.request.RegisterRequest;
 import com.example.SplitLoop.auth.controller.response.TokenResponse;
 import com.example.SplitLoop.common.security.config.SecurityConfigTest;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;

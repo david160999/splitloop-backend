@@ -1,4 +1,4 @@
-package com.example.SplitLoop.group.application.usecase;
+package com.example.SplitLoop.group.application.command;
 
 import com.example.SplitLoop.user.domain.service.CurrentUserService;
 import com.example.SplitLoop.group.domain.entity.Group;
@@ -14,7 +14,8 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class LeaveGroupUseCase {
+public class DeleteGroupUseCase {
+
     private final GroupRepository groupRepository;
     private final GroupService groupService;
     private final CurrentUserService currentUserService;
@@ -22,11 +23,12 @@ public class LeaveGroupUseCase {
     @Transactional
     public void execute(UUID groupId) {
 
+        User currentUser = currentUserService.getCurrentUser();
+
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
-        User requester = currentUserService.getCurrentUser();
 
-        groupService.leaveGroup(group, requester);
+        groupService.deleteGroup(group, currentUser);
     }
 }

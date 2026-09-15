@@ -1,10 +1,6 @@
-package com.example.SplitLoop.group.application.usecase;
+package com.example.SplitLoop.group.application.command;
 
-import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.group.mapper.GroupMapper;
 import com.example.SplitLoop.user.domain.service.CurrentUserService;
-import com.example.SplitLoop.group.controller.request.UpdateMemberRoleRequest;
-import com.example.SplitLoop.group.controller.response.GroupMemberResponse;
 import com.example.SplitLoop.group.domain.entity.Group;
 import com.example.SplitLoop.group.domain.repository.GroupRepository;
 import com.example.SplitLoop.group.domain.service.GroupService;
@@ -20,33 +16,23 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UpdateMemberRoleUseCase {
-
+public class RemoveMemberUseCase {
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
-
-    private final CurrentUserService currentUserService;
     private final GroupService groupService;
-
-    private final GroupMapper groupMapper;
+    private final CurrentUserService currentUserService;
 
     @Transactional
-    public GroupMemberResponse execute(UUID groupId, UUID memberId, UpdateMemberRoleRequest request) {
+    public void execute(UUID groupId, UUID userId){
 
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
         User requester = currentUserService.getCurrentUser();
 
-        User targetUser = userRepository.findById(memberId)
-                .orElseThrow(() -> new UserNotFoundException(memberId));
+        User member = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
-        GroupMember member = groupService.updateMemberRole(
-                group,
-                requester,
-                targetUser,
-                request.getNewRole());
-
-        return groupMapper.toResponse(member);
+        groupService.removeMember(group, requester, member);
     }
 }

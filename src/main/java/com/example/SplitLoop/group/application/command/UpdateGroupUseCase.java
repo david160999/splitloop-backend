@@ -1,11 +1,12 @@
-package com.example.SplitLoop.group.application.usecase;
+package com.example.SplitLoop.group.application.command;
 
-import com.example.SplitLoop.user.domain.service.CurrentUserService;
+import com.example.SplitLoop.group.controller.request.UpdateGroupRequest;
+import com.example.SplitLoop.group.controller.response.GroupResponse;
 import com.example.SplitLoop.group.domain.entity.Group;
 import com.example.SplitLoop.group.domain.repository.GroupRepository;
 import com.example.SplitLoop.group.domain.service.GroupService;
 import com.example.SplitLoop.group.exception.GroupNotFoundException;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.group.mapper.GroupMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,21 +15,22 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class DeleteGroupUseCase {
+public class UpdateGroupUseCase {
 
     private final GroupRepository groupRepository;
     private final GroupService groupService;
-    private final CurrentUserService currentUserService;
+    private final GroupMapper groupMapper;
 
     @Transactional
-    public void execute(UUID groupId) {
-
-        User currentUser = currentUserService.getCurrentUser();
+    public GroupResponse execute(UUID groupId, UpdateGroupRequest request){
 
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
+        groupService.updateGroup(group, request.getName(), request.getDescription());
 
-        groupService.deleteGroup(group, currentUser);
+        return groupMapper.toResponse(group);
     }
 }
+
+

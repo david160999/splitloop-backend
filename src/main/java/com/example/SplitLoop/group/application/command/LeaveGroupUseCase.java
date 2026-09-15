@@ -1,37 +1,32 @@
-package com.example.SplitLoop.group.application.usecase;
+package com.example.SplitLoop.group.application.command;
 
-import com.example.SplitLoop.group.controller.request.UpdateGroupRequest;
-import com.example.SplitLoop.group.controller.response.GroupResponse;
+import com.example.SplitLoop.user.domain.service.CurrentUserService;
 import com.example.SplitLoop.group.domain.entity.Group;
 import com.example.SplitLoop.group.domain.repository.GroupRepository;
 import com.example.SplitLoop.group.domain.service.GroupService;
 import com.example.SplitLoop.group.exception.GroupNotFoundException;
-import com.example.SplitLoop.group.mapper.GroupMapper;
+import com.example.SplitLoop.user.domain.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UpdateGroupUseCase {
-
+public class LeaveGroupUseCase {
     private final GroupRepository groupRepository;
     private final GroupService groupService;
-    private final GroupMapper groupMapper;
+    private final CurrentUserService currentUserService;
 
     @Transactional
-    public GroupResponse execute(UUID groupId, UpdateGroupRequest request) throws BadRequestException {
+    public void execute(UUID groupId) {
 
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
-        groupService.updateGroup(group, request.getName(), request.getDescription());
+        User requester = currentUserService.getCurrentUser();
 
-        return groupMapper.toResponse(group);
+        groupService.leaveGroup(group, requester);
     }
 }
-
-

@@ -1,4 +1,4 @@
-package com.example.SplitLoop.group.application.usecase;
+package com.example.SplitLoop.group.application.command;
 
 import com.example.SplitLoop.group.controller.request.AddMemberRequest;
 import com.example.SplitLoop.group.controller.response.GroupMemberResponse;
