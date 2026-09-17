@@ -13,10 +13,9 @@ El objetivo del proyecto es aplicar una arquitectura backend mantenible y orient
 ### 🔐 Authentication & Security
 
 * Registro de usuarios
-* Autenticación de usuarios
-* JWT access tokens
-* Refresh tokens
-* Integración con Spring Security
+* Autenticación híbrida: **JWT Access Tokens** en memoria + **HTTP-Only Refresh Cookies**
+* Rotación de Refresh Tokens persistidos en base de datos
+* Integración con Spring Security y protección CSRF/CORS
 * Protección de endpoints mediante autenticación y autorización
 
 ### 👥 Users & Groups
