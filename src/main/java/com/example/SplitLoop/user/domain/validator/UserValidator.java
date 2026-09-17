@@ -42,15 +42,19 @@ public class UserValidator {
             throw new WeakPasswordException();
         }
 
-        if (!password.matches(".*[A-Z].*")) {
-            throw new WeakPasswordException();
+        boolean hasUpper = false;
+        boolean hasLower = false;
+        boolean hasDigit = false;
+
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+
+            if (hasUpper && hasLower && hasDigit) break; // Termina temprano si ya cumple
         }
 
-        if (!password.matches(".*[a-z].*")) {
-            throw new WeakPasswordException();
-        }
-
-        if (!password.matches(".*\\d.*")) {
+        if (!hasUpper || !hasLower || !hasDigit) {
             throw new WeakPasswordException();
         }
     }

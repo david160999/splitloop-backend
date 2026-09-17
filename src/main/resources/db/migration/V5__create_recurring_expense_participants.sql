@@ -6,7 +6,7 @@ CREATE TABLE recurring_expense_participants (
     recurring_expense_id UUID NOT NULL,
     user_id UUID NOT NULL,
 
-    value DECIMAL(19,2),
+    "value" DECIMAL(19,2),
 
     CONSTRAINT fk_recurring_expense_participants_expense
         FOREIGN KEY (recurring_expense_id)

@@ -88,6 +88,7 @@ public class AuthService {
                 .orElseThrow(() -> new InvalidBearerTokenException("Refresh Token inválido o no encontrado."));
     }
 
+    @Transactional
     public void logoutWithBearerToken(final String tokenHeader) {
         if (tokenHeader == null || !tokenHeader.startsWith("Bearer ")) {
             return;

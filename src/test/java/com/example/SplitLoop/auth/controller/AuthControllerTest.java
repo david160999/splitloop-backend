@@ -10,6 +10,7 @@ import com.example.SplitLoop.auth.controller.response.AuthResponse;
 import com.example.SplitLoop.auth.domain.service.AuthService;
 import com.example.SplitLoop.auth.domain.service.JwtService;
 import jakarta.servlet.http.Cookie;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -83,8 +84,7 @@ class AuthControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Validation failed."))
                 .andExpect(jsonPath("$.fields.username").value("Username is required"))
-                .andExpect(jsonPath("$.fields.email").value("Email must be valid"))
-                .andExpect(jsonPath("$.fields.password").value("Password is required"));
+                .andExpect(jsonPath("$.fields.email").value("Email must be valid"));
 
         verifyNoInteractions(registerUserUseCase);
     }

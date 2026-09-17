@@ -1,6 +1,5 @@
 package com.example.SplitLoop.auth.controller.request;
 
-import com.example.SplitLoop.user.domain.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
