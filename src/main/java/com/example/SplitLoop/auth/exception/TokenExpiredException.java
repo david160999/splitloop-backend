@@ -4,13 +4,13 @@ import com.example.SplitLoop.common.exception.BusinessException;
 import com.example.SplitLoop.common.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public class InvalidBearerTokenException extends BusinessException {
+public class TokenExpiredException extends BusinessException {
 
-    public InvalidBearerTokenException(String s) {
+    public TokenExpiredException(String s) {
         super(
                 HttpStatus.UNAUTHORIZED,
-                ErrorCode.INVALID_BEARER_TOKEN,
-                "El token de acceso es inválido"
+                ErrorCode.TOKEN_EXPIRED,
+                "El Refresh Token ha expirado"
         );
     }
 

@@ -1,6 +1,6 @@
 package com.example.SplitLoop.common.audit;
 
-import com.example.SplitLoop.user.domain.model.CustomUserPrincipal;
+import com.example.SplitLoop.user.domain.entity.User;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,9 +25,9 @@ public class AuditorAwareImpl implements AuditorAware<UUID> {
             return Optional.empty();
         }
 
-        CustomUserPrincipal principal =
-                (CustomUserPrincipal) authentication.getPrincipal();
+        User principal = (User) authentication.getPrincipal();
 
+        assert principal != null;
         return Optional.of(principal.getId());
     }
 }

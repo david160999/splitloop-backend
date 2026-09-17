@@ -2,7 +2,7 @@ package com.example.SplitLoop.auth.controller.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record TokenResponse(
+public record AuthResponse(
         @JsonProperty("access_token")
         String accessToken,
         @JsonProperty("refresh_token")

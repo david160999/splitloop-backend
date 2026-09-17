@@ -1,17 +1,12 @@
 -- V10__create_tokens_table.sql
 
-CREATE TABLE tokens (
+CREATE TABLE refresh_tokens (
     id UUID PRIMARY KEY,
-
     token VARCHAR(512) NOT NULL UNIQUE,
-
-    token_type VARCHAR(20) NOT NULL
-        CHECK (token_type IN ('ACCESS', 'REFRESH')),
-
     revoked BOOLEAN NOT NULL DEFAULT FALSE,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    expires_at TIMESTAMP NOT NULL,
+    expiry_date TIMESTAMP NOT NULL,
 
     user_id UUID NOT NULL,
 
@@ -21,5 +16,5 @@ CREATE TABLE tokens (
         ON DELETE CASCADE
 );
 
-CREATE INDEX idx_tokens_user_id
-    ON tokens(user_id);
+CREATE INDEX idx_refresh_tokens_user_id
+    ON refresh_tokens(user_id);

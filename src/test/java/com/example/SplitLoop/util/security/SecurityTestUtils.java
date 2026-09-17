@@ -1,6 +1,5 @@
 package com.example.SplitLoop.util.security;
 
-import com.example.SplitLoop.user.domain.model.CustomUserPrincipal;
 import com.example.SplitLoop.user.domain.entity.User;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -11,32 +10,30 @@ import java.util.List;
 public final class SecurityTestUtils {
 
     private SecurityTestUtils() {
+        // Constructor privado para evitar instanciación
     }
 
+    /**
+     * Simula un inicio de sesión inyectando la entidad User directamente
+     * en el contexto de seguridad de Spring.
+     */
     public static void login(User user) {
+        // Creamos la autenticación usando el objeto User como Principal,
+        // sus credenciales y su lista real de autoridades (roles).
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                user,                  // Principal (el usuario autenticado)
+                user.getPassword(),    // Credentials
+                user.getAuthorities()  // Authorities (roles)
+        );
 
-        CustomUserPrincipal principal =
-                new CustomUserPrincipal(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getPassword(),
-                        List.of().toString());
-
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(
-                        principal,
-                        null,
-                        principal.getAuthorities());
-
-        SecurityContextHolder
-                .getContext()
-                .setAuthentication(authentication);
+        // Inyectamos el token de autenticación en el contexto del hilo actual
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
+    /**
+     * Limpia el contexto de seguridad al finalizar cada test.
+     */
     public static void logout() {
-
         SecurityContextHolder.clearContext();
-
     }
-
 }

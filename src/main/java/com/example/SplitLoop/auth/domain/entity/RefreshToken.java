@@ -4,22 +4,19 @@ import com.example.SplitLoop.user.domain.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
 
+@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "tokens")
+@Table(name = "refresh_tokens")
 @Setter
 @Getter
-public class Token {
-
-    public enum TokenType {
-        ACCESS,
-        REFRESH
-    }
+public class RefreshToken  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -27,10 +24,6 @@ public class Token {
 
     @Column(nullable = false, unique = true, length = 512)
     private String token;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TokenType tokenType;
 
     @Column(nullable = false)
     @Builder.Default
@@ -44,7 +37,7 @@ public class Token {
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
-    private LocalDateTime expiresAt;
+    private Instant expiryDate;
 
     @PrePersist
     protected void onCreate() {
@@ -52,7 +45,7 @@ public class Token {
     }
 
     public boolean hasExpired() {
-        return expiresAt.isBefore(LocalDateTime.now());
+        return expiryDate.isBefore(Instant.now());
     }
 
 }

@@ -1,15 +1,17 @@
 package com.example.SplitLoop.auth.domain.service;
 
-import com.example.SplitLoop.user.domain.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
 import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -20,59 +22,55 @@ public class JwtService {
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
 
-    @Value("${application.security.jwt.refresh-token.expiration}")
-    private long refreshExpiration;
+    private SecretKey cachedSigningKey;
 
-    public String extractUsername(final String token) {
-        final Claims jwtToken = Jwts.parser()
-                .verifyWith(getSignInKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return jwtToken.getSubject();
+    // Cacheamos la clave criptográfica al iniciar el bean para mejorar rendimiento
+    @PostConstruct
+    private void initSigningKey() {
+        byte[] keyBytes = Decoders.BASE64URL.decode(secretKey);
+        this.cachedSigningKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(final User user) {
-        return buildToken(user, jwtExpiration);
+    // --- GENERACIÓN DE TOKENS ---
 
+    public String generateAccessToken(UserDetails userDetails) {
+        return generateAccessToken(new HashMap<>(), userDetails);
     }
 
-    public String generateRefreshToken(final User user) {
-        return buildToken(user, refreshExpiration);
-    }
-
-    private String buildToken(final User user, final long expiration) {
+    public String generateAccessToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder()
-                .id(user.getId().toString())
-                .claims(Map.of("name", user.getUsername()))
-                .subject(user.getEmail())
+                .claims(extraClaims)
+                .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSignInKey())
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(cachedSigningKey)
                 .compact();
     }
 
-    public boolean isTokenValid(final String token, final User user) {
-        final String username = extractUsername(token);
-        return (username.equals(user.getEmail())) && !isTokenExpired(token);
+    // --- PARSEO Y VALIDACIÓN DE TOKENS ---
+
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
     }
 
-    public Date extractExpiration(String token) {
-        final Claims jwtToken = Jwts.parser()
-                .verifyWith(getSignInKey())
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final Claims claims = extractAllClaims(token);
+        final String username = claims.getSubject();
+        final Date expiration = claims.getExpiration();
+
+        return (username.equals(userDetails.getUsername())) && !expiration.before(new Date());
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(cachedSigningKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        return jwtToken.getExpiration();
     }
-
-    private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
 }

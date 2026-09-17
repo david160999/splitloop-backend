@@ -1,5 +1,7 @@
 server:
   port: 8080
+  # Reconoce nativamente si la petición original venía por HTTPS desde Nginx/Cloud/Proxy
+  forward-headers-strategy: native
 
 application:
   security:
