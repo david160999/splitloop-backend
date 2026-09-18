@@ -55,6 +55,18 @@ public class SecurityConfigProd {
                 // REGLAS DE AUTORIZACIÓN
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/actuator/health").permitAll()
+
+                        // --- RUTAS DE SWAGGER / OPENAPI ---
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/v3/api-docs",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+
+                        // Cualquier otra petición requiere autenticación
                         .anyRequest().authenticated()
                 )
 

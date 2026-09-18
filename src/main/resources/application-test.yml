@@ -25,3 +25,10 @@ application:
 logging:
   level:
     org.hibernate.SQL: DEBUG
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    with-credentials: true
+  api-docs:
+    enabled: true
