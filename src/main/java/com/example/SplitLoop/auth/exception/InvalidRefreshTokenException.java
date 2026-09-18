@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 public class InvalidRefreshTokenException extends BusinessException {
 
-    public InvalidRefreshTokenException() {
+    public InvalidRefreshTokenException(String refreshTokenNoEncontrado) {
         super(
                 HttpStatus.UNAUTHORIZED,
                 ErrorCode.INVALID_REFRESH_TOKEN,

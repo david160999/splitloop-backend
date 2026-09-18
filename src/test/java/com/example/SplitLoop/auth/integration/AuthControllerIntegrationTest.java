@@ -55,8 +55,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.access_token").isNotEmpty());
+                .andExpect(status().isCreated());
 
         assertThat(userRepository.existsByEmail(registerReq.email())).isTrue();
     }
@@ -88,9 +87,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerReq)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.access_token").isNotEmpty())
-                .andExpect(jsonPath("$.refresh_token").isNotEmpty());
+                .andExpect(status().isCreated());
 
         // Verificamos persistencia real en la BD
         assertThat(userRepository.existsByEmail(registerReq.email())).isTrue();

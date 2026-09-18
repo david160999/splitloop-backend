@@ -75,13 +75,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * y como alternativa en la cookie HTTP "jwt".
      */
     private String extractToken(HttpServletRequest request) {
-        // Opción A: Encabezado Authorization
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
-        }
-
-        // Opción B: Cookie (si se migra a este esquema en el futuro)
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("jwt".equals(cookie.getName())) {

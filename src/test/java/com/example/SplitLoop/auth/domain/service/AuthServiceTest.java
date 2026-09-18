@@ -6,6 +6,7 @@ import com.example.SplitLoop.auth.controller.response.AuthResponse;
 import com.example.SplitLoop.auth.domain.entity.RefreshToken;
 import com.example.SplitLoop.auth.domain.repository.RefreshTokenRepository;
 import com.example.SplitLoop.auth.exception.InvalidBearerTokenException;
+import com.example.SplitLoop.auth.exception.InvalidRefreshTokenException;
 import com.example.SplitLoop.auth.exception.RefreshTokenRequiredException;
 import com.example.SplitLoop.group.exception.EmailAlreadyExistsException;
 import com.example.SplitLoop.user.domain.entity.User;
@@ -78,8 +79,7 @@ class AuthServiceTest {
         RegisterRequest request = new RegisterRequest("john", "john@test.com", "password123");
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
 
-        assertThatThrownBy(() -> authService.register(request))
-                .isInstanceOf(EmailAlreadyExistsException.class);
+        assertThatThrownBy(() -> authService.register(request)).isInstanceOf(EmailAlreadyExistsException.class);
 
         verify(userRepository, never()).save(any());
     }
@@ -94,8 +94,7 @@ class AuthServiceTest {
         RefreshToken refreshToken = RefreshTokenMother.refreshTokenForUser(usuario);
         Authentication authMock = mock(Authentication.class);
 
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(authMock);
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authMock);
         when(authMock.getPrincipal()).thenReturn(usuario);
         when(jwtService.generateAccessToken(usuario)).thenReturn("access-token-jwt");
         when(refreshTokenService.createRefreshToken(usuario)).thenReturn(refreshToken);
@@ -110,47 +109,57 @@ class AuthServiceTest {
     @DisplayName("Login: Debe propagar BadCredentialsException si las credenciales fallan")
     void debeLanzarExcepcionSiCredencialesSonInvalidas() {
         LoginRequest request = new LoginRequest("john@test.com", "wrong_pass");
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new BadCredentialsException("Bad credentials"));
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenThrow(new BadCredentialsException("Bad credentials"));
 
-        assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(BadCredentialsException.class);
+        assertThatThrownBy(() -> authService.login(request)).isInstanceOf(BadCredentialsException.class);
     }
 
     // --- PRUEBAS DE REFRESH TOKEN ---
 
     @Test
-    @DisplayName("RefreshToken: Debe generar un nuevo AccessToken con un RefreshToken válido")
+    @DisplayName("RefreshToken: Debe generar un nuevo AccessToken y un nuevo RefreshToken (Rotación)")
     void debeRefrescarTokenExitosamente() {
+        // 1. Arrange
         User usuario = UserMother.user();
-        RefreshToken refreshToken = RefreshTokenMother.refreshTokenForUser(usuario);
+        RefreshToken oldRefreshToken = RefreshTokenMother.refreshTokenForUser(usuario);
 
-        when(refreshTokenService.findByToken(refreshToken.getToken())).thenReturn(Optional.of(refreshToken));
-        when(refreshTokenService.verifyExpiration(refreshToken)).thenReturn(refreshToken);
+        // Creamos un nuevo RefreshToken con una cadena distinta para validar la rotación
+        RefreshToken newRefreshToken = RefreshTokenMother.refreshTokenForUser(usuario);
+        newRefreshToken.setToken("nuevo-refresh-token-uuid");
+
+        when(refreshTokenService.findByToken(oldRefreshToken.getToken())).thenReturn(Optional.of(oldRefreshToken));
+        when(refreshTokenService.verifyExpiration(oldRefreshToken)).thenReturn(oldRefreshToken);
         when(jwtService.generateAccessToken(usuario)).thenReturn("new-access-token-jwt");
 
-        AuthResponse response = authService.refreshToken(refreshToken.getToken());
+        // Agregamos el mock para la creación del nuevo RefreshToken
+        when(refreshTokenService.createRefreshToken(usuario)).thenReturn(newRefreshToken);
 
+        // 2. Act
+        AuthResponse response = authService.refreshToken(oldRefreshToken.getToken());
+
+        // 3. Assert
         assertThat(response.accessToken()).isEqualTo("new-access-token-jwt");
-        assertThat(response.refreshToken()).isEqualTo(refreshToken.getToken());
+        // Verificamos que devuelva el NUEVO refresh token, no el viejo
+        assertThat(response.refreshToken()).isEqualTo("nuevo-refresh-token-uuid");
+
+        // Opcional: Verificar interacciones
+        verify(refreshTokenService).findByToken(oldRefreshToken.getToken());
+        verify(refreshTokenService).verifyExpiration(oldRefreshToken);
+        verify(refreshTokenService).createRefreshToken(usuario);
     }
 
     @Test
     @DisplayName("RefreshToken: Debe lanzar RefreshTokenRequiredException si el token es nulo o vacío")
     void debeLanzarExcepcionSiRefreshTokenEsNuloOVacio() {
-        assertThatThrownBy(() -> authService.refreshToken(""))
-                .isInstanceOf(RefreshTokenRequiredException.class)
-                .hasMessageContaining("El refresh token es requerido");
+        assertThatThrownBy(() -> authService.refreshToken("")).isInstanceOf(RefreshTokenRequiredException.class).hasMessageContaining("El refresh token es requerido");
     }
 
     @Test
-    @DisplayName("RefreshToken: Debe lanzar InvalidBearerTokenException si no existe en BD")
+    @DisplayName("RefreshToken: Debe lanzar InvalidRefreshTokenException si no existe en BD")
     void debeLanzarExcepcionSiRefreshTokenNoExiste() {
         when(refreshTokenService.findByToken("invalid-token")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> authService.refreshToken("invalid-token"))
-                .isInstanceOf(InvalidBearerTokenException.class)
-                .hasMessageContaining("El token de acceso es inválido");
+        assertThatThrownBy(() -> authService.refreshToken("invalid-token")).isInstanceOf(InvalidRefreshTokenException.class).hasMessageContaining("El token de actualización es inválido");
     }
 
     // --- PRUEBAS DE LOGOUT ---

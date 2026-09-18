@@ -5,6 +5,8 @@ server:
 
 application:
   security:
+    cookie:
+      secure: ${COOKIE_SECURE:true}
     jwt:
       secret-key: ${JWT_SECRET}
       expiration: ${JWT_EXPIRATION}

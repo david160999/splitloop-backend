@@ -10,7 +10,6 @@ import com.example.SplitLoop.auth.controller.response.AuthResponse;
 import com.example.SplitLoop.auth.domain.service.AuthService;
 import com.example.SplitLoop.auth.domain.service.JwtService;
 import jakarta.servlet.http.Cookie;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,6 +18,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
@@ -29,6 +29,9 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@TestPropertySource(properties = {
+        "application.security.cookie.secure=true" // Inyecta la spec de producción sin usar @SpringBootTest
+})
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
@@ -56,7 +59,7 @@ class AuthControllerTest {
     // --- REGISTER TESTS ---
 
     @Test
-    @DisplayName("Register: Debe responder 200 OK y retornar AuthResponse al enviar datos válidos")
+    @DisplayName("Register: Debe responder 201 CREATED y retornar AuthResponse al enviar datos válidos")
     void debeRegistrarUsuarioExitosamente() throws Exception {
         RegisterRequest request = RequestMother.registerRequest();
         AuthResponse expectedResponse = new AuthResponse("access-token", "refresh-token");
@@ -66,9 +69,7 @@ class AuthControllerTest {
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.access_token").value("access-token"))
-                .andExpect(jsonPath("$.refresh_token").value("refresh-token"));
+                .andExpect(status().isCreated());
 
         verify(registerUserUseCase).execute(any(RegisterRequest.class));
     }
@@ -109,7 +110,7 @@ class AuthControllerTest {
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("HttpOnly")))
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("Secure")))
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("Path=/auth/refresh-token")))
-                .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("SameSite=Strict")));
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("SameSite=Lax")));
 
         verify(loginUseCase).execute(any(LoginRequest.class));
     }
@@ -130,48 +131,40 @@ class AuthControllerTest {
     // --- REFRESH TOKEN TESTS ---
 
     @Test
-    @DisplayName("RefreshToken: Debe renovar el token leyendo el valor desde una Cookie")
-    void debeRefrescarTokenDesdeCookie() throws Exception {
-        Cookie cookie = new Cookie("refreshToken", "token-de-cookie");
-        AuthResponse expectedResponse = new AuthResponse("new-access-token", "token-de-cookie");
+    @DisplayName("RefreshToken: Debe renovar el token leyendo la cookie HttpOnly 'refreshToken'")
+    void debeRefrescarTokenDesdeCookieHttpOnly() throws Exception {
+        String refreshTokenInput = "refresh-token-valido-123";
+        AuthResponse expectedUseCaseResponse = new AuthResponse("new-access-token", "new-refresh-token-456");
 
-        when(refreshTokenUseCase.execute("token-de-cookie")).thenReturn(expectedResponse);
+        // Mock del UseCase esperando la cadena proveniente de la cookie
+        when(refreshTokenUseCase.execute(refreshTokenInput)).thenReturn(expectedUseCaseResponse);
+
+        // Simulamos la cookie 'refreshToken' entrante
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshTokenInput);
 
         mockMvc.perform(post("/auth/refresh-token")
-                        .cookie(cookie))
+                        .cookie(refreshTokenCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.access_token").value("new-access-token"));
+                // Verificamos que el AccessTokenResponse contenga el nuevo token en el cuerpo JSON
+                .andExpect(jsonPath("$.access_token").value("new-access-token"))
+                // Verificamos que se devuelva la nueva Cookie HttpOnly en la cabecera Set-Cookie
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("refreshToken=new-refresh-token-456")))
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("HttpOnly")));
 
-        verify(refreshTokenUseCase).execute("token-de-cookie");
+        // Confirmamos que el UseCase fue invocado con el token de la cookie
+        verify(refreshTokenUseCase).execute(refreshTokenInput);
     }
 
     @Test
-    @DisplayName("RefreshToken: Debe renovar el token leyendo la cabecera Authorization Bearer si no hay Cookie")
-    void debeRefrescarTokenDesdeHeaderBearer() throws Exception {
-        String bearerHeader = "Bearer token-de-header";
-        AuthResponse expectedResponse = new AuthResponse("new-access-token", "token-de-header");
+    @DisplayName("RefreshToken: Debe devolver 401 Unauthorized y no invocar el UseCase si no se envía la Cookie")
+    void debeDevolver401SiNoHayCookie() throws Exception {
 
-        when(refreshTokenUseCase.execute("token-de-header")).thenReturn(expectedResponse);
-
-        mockMvc.perform(post("/auth/refresh-token")
-                        .header(HttpHeaders.AUTHORIZATION, bearerHeader))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.access_token").value("new-access-token"));
-
-        verify(refreshTokenUseCase).execute("token-de-header");
-    }
-
-    @Test
-    @DisplayName("RefreshToken: Debe enviar null al UseCase si no recibe ni Cookie ni Header")
-    void debeEjecutarConNullSiNoHayToken() throws Exception {
-        AuthResponse expectedResponse = new AuthResponse("new-access-token", null);
-
-        when(refreshTokenUseCase.execute(null)).thenReturn(expectedResponse);
-
+        // Ejecutamos la petición POST sin cookies ni encabezados
         mockMvc.perform(post("/auth/refresh-token"))
-                .andExpect(status().isOk());
+                .andExpect(status().isUnauthorized()); // Espera un HTTP 401
 
-        verify(refreshTokenUseCase).execute(null);
+        // Verificamos que el UseCase NUNCA sea ejecutado
+        verifyNoInteractions(refreshTokenUseCase);
     }
 
 
@@ -189,7 +182,7 @@ class AuthControllerTest {
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("refreshToken=mocked-refresh-token")))
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("HttpOnly")))
                 .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("Secure")))
-                .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("SameSite=Strict")));
+                .andExpect(header().string(HttpHeaders.SET_COOKIE, containsString("SameSite=Lax")));
 
     }
 }

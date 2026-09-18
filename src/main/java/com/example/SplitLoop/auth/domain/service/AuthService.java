@@ -6,11 +6,13 @@ import com.example.SplitLoop.auth.controller.response.AuthResponse;
 import com.example.SplitLoop.auth.domain.entity.RefreshToken;
 import com.example.SplitLoop.auth.domain.repository.RefreshTokenRepository;
 import com.example.SplitLoop.auth.exception.InvalidBearerTokenException;
+import com.example.SplitLoop.auth.exception.InvalidRefreshTokenException;
 import com.example.SplitLoop.auth.exception.RefreshTokenRequiredException;
 import com.example.SplitLoop.group.exception.EmailAlreadyExistsException;
 import com.example.SplitLoop.user.domain.entity.Role;
 import com.example.SplitLoop.user.domain.entity.User;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -76,16 +78,21 @@ public class AuthService {
             throw new RefreshTokenRequiredException("El Refresh Token es requerido");
         }
 
-        // Recibe el DTO con la cadena del refresh token, lo busca, valida y refresca el acceso
-        return refreshTokenService.findByToken(refreshTokenStr)
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUser)
-                .map(user -> {
-                    String newAccessToken = jwtService.generateAccessToken(user);
-                    // Retornamos el DTO limpio de negocio (El controlador se encargará del HTTP 200)
-                    return new AuthResponse(newAccessToken, refreshTokenStr);
-                })
-                .orElseThrow(() -> new InvalidBearerTokenException("Refresh Token inválido o no encontrado."));
+        // 1. Buscar en BD
+        RefreshToken oldToken = refreshTokenService.findByToken(refreshTokenStr)
+                .orElseThrow(() -> new InvalidRefreshTokenException("Refresh Token no encontrado"));
+
+        // 2. Validar expiración (Si expiró, el servicio lo elimina de la BD y lanza excepción)
+        refreshTokenService.verifyExpiration(oldToken);
+
+        User user = oldToken.getUser();
+
+        // 3. Generar nuevos tokens:
+        // createRefreshToken(user) BORRA el viejo token del usuario y GUARDA el nuevo en un solo paso
+        String newAccessToken = jwtService.generateAccessToken(user);
+        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+
+        return new AuthResponse(newAccessToken, newRefreshToken.getToken());
     }
 
     @Transactional
@@ -112,8 +119,6 @@ public class AuthService {
 
     @Transactional
     public void deleteRefreshTokenForUser(String email) {
-        userRepository.findByEmail(email).ifPresent(user -> {
-            refreshTokenRepository.deleteByUser(user);
-        });
+        userRepository.findByEmail(email).ifPresent(refreshTokenRepository::deleteByUser);
     }
 }
