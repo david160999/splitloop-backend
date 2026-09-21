@@ -12,8 +12,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface BalanceMapper {
 
-    @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "username", source = "user.username")
+    @Mapping(target = "userId", source = "userEntity.id")
+    @Mapping(target = "username", source = "userEntity.username")
     @Mapping(target = "balance", source = "amount")
     BalanceResponse toResponse(Balance balance);
 

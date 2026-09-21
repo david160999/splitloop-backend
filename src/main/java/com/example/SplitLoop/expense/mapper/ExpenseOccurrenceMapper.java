@@ -5,7 +5,7 @@ import com.example.SplitLoop.expense.controller.response.ExpenseOccurrenceRespon
 import com.example.SplitLoop.expense.controller.response.ExpenseOccurrenceSplitResponse;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -41,5 +41,5 @@ public interface ExpenseOccurrenceMapper {
     void updateEntity(
             UpdateOccurrenceCommand request,
             @MappingTarget ExpenseOccurrence occurrence,
-            User paidBy);
+            UserEntity paidBy);
 }

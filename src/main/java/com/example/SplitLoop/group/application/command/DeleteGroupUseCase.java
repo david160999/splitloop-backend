@@ -1,11 +1,11 @@
 package com.example.SplitLoop.group.application.command;
 
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.service.CurrentUserService;
 import com.example.SplitLoop.group.domain.entity.Group;
 import com.example.SplitLoop.group.domain.repository.GroupRepository;
 import com.example.SplitLoop.group.domain.service.GroupService;
 import com.example.SplitLoop.group.exception.GroupNotFoundException;
-import com.example.SplitLoop.user.domain.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,12 +23,12 @@ public class DeleteGroupUseCase {
     @Transactional
     public void execute(UUID groupId) {
 
-        User currentUser = currentUserService.getCurrentUser();
+        UserEntity currentUserEntity = currentUserService.getCurrentUser();
 
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
 
-        groupService.deleteGroup(group, currentUser);
+        groupService.deleteGroup(group, currentUserEntity);
     }
 }

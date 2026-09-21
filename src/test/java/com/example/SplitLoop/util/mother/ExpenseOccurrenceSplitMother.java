@@ -4,7 +4,7 @@ package com.example.SplitLoop.util.mother;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplitStatus;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -16,20 +16,20 @@ public final class ExpenseOccurrenceSplitMother {
 
     public static ExpenseOccurrenceSplit pending() {
 
-        User user = UserMother.user();
+        UserEntity userEntity = UserMother.userEntity();
         ExpenseOccurrence occurrence = ExpenseOccurrenceMother.pending();
 
-        return pending(occurrence, user);
+        return pending(occurrence, userEntity);
     }
 
     public static ExpenseOccurrenceSplit pending(
             ExpenseOccurrence occurrence,
-            User user) {
+            UserEntity userEntity) {
 
         return ExpenseOccurrenceSplit.builder()
                 .id(UUID.randomUUID())
                 .occurrence(occurrence)
-                .user(user)
+                .user(userEntity)
                 .amountOwed(BigDecimal.TEN)
                 .amountPaid(BigDecimal.ZERO)
                 .status(ExpenseOccurrenceSplitStatus.PENDING)

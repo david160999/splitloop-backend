@@ -7,7 +7,7 @@ import com.example.SplitLoop.expense.domain.repository.RecurringExpenseParticipa
 import com.example.SplitLoop.expense.domain.repository.RecurringExpenseRepository;
 import com.example.SplitLoop.expense.domain.validator.ExpenseValidator;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -124,7 +124,7 @@ public class RecurringExpenseServiceImpl implements RecurringExpenseService {
     public RecurringExpense duplicateRecurringExpense(
             RecurringExpense original,
             List<RecurringExpenseParticipant> participants,
-            User createdBy,
+            UserEntity createdBy,
             LocalDate startDate,
             List<GroupMember> groupMembers) {
 

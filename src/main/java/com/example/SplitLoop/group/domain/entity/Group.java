@@ -1,6 +1,6 @@
 package com.example.SplitLoop.group.domain.entity;
 
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,7 +28,7 @@ public class Group{
 
     @ManyToOne
     @JoinColumn(name = "created_by")
-    private User createdBy;
+    private UserEntity createdBy;
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp

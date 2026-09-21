@@ -1,6 +1,6 @@
 package com.example.SplitLoop.expense.domain.entity;
 
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,7 +33,7 @@ public class ExpenseOccurrenceSplit {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserEntity user;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amountOwed;

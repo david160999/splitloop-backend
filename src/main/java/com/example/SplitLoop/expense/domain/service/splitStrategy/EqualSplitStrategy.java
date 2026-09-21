@@ -4,7 +4,7 @@ import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplitStatus;
 import com.example.SplitLoop.expense.domain.entity.RecurringExpenseParticipant;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -42,9 +42,9 @@ public class EqualSplitStrategy implements SplitStrategy {
                 accumulated = accumulated.add(amount);
             }
 
-            User participantUser = participants.get(i).getUser();
+            UserEntity participantUserEntity = participants.get(i).getUser();
 
-            boolean paidBy = participantUser.equals(occurrence.getPaidBy());
+            boolean paidBy = participantUserEntity.equals(occurrence.getPaidBy());
 
             splits.add(
                     ExpenseOccurrenceSplit.builder()

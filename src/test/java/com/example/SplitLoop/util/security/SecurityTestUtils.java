@@ -1,11 +1,9 @@
 package com.example.SplitLoop.util.security;
 
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.List;
 
 public final class SecurityTestUtils {
 
@@ -17,13 +15,13 @@ public final class SecurityTestUtils {
      * Simula un inicio de sesión inyectando la entidad User directamente
      * en el contexto de seguridad de Spring.
      */
-    public static void login(User user) {
+    public static void login(UserEntity userEntity) {
         // Creamos la autenticación usando el objeto User como Principal,
         // sus credenciales y su lista real de autoridades (roles).
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                user,                  // Principal (el usuario autenticado)
-                user.getPassword(),    // Credentials
-                user.getAuthorities()  // Authorities (roles)
+                userEntity,                  // Principal (el usuario autenticado)
+                userEntity.getPassword(),    // Credentials
+                userEntity.getAuthorities()  // Authorities (roles)
         );
 
         // Inyectamos el token de autenticación en el contexto del hilo actual

@@ -1,6 +1,6 @@
 package com.example.SplitLoop.user.domain.validator;
 
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.exception.*;
 import org.springframework.stereotype.Component;
 
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class UserValidator {
 
     public void validateUpdateUser(
-            User user,
+            UserEntity userEntity,
             String username,
             String email) {
 
@@ -16,7 +16,7 @@ public class UserValidator {
             throw new UsernameRequiredException();
         }
 
-        if (username.equals(user.getUsername()) && email.equals(user.getEmail())) {
+        if (username.equals(userEntity.getUsername()) && email.equals(userEntity.getEmail())) {
             throw new NothingToUpdateException();
         }
     }

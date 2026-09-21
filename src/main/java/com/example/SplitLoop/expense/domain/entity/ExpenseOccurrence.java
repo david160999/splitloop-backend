@@ -1,7 +1,7 @@
 package com.example.SplitLoop.expense.domain.entity;
 
 import com.example.SplitLoop.group.domain.entity.Group;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -42,7 +42,7 @@ public class ExpenseOccurrence {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "paid_by_id", nullable = false)
-    private User paidBy;
+    private UserEntity paidBy;
 
     @Column(nullable = false)
     private LocalDate dueDate;

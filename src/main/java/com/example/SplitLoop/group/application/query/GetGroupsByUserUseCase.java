@@ -5,7 +5,7 @@ import com.example.SplitLoop.group.controller.response.GroupResponse;
 import com.example.SplitLoop.group.domain.service.GroupService;
 import com.example.SplitLoop.group.exception.UserNotFoundException;
 import com.example.SplitLoop.group.mapper.GroupMapper;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,10 +24,10 @@ public class GetGroupsByUserUseCase {
     @Transactional(readOnly = true)
     public List<GroupResponse> execute(GetGroupsByUserQuery request) {
 
-        User user = userRepository.findById(request.getUserId())
+        UserEntity userEntity = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
 
-        return groupService.getGroupsByUserId(user.getId())
+        return groupService.getGroupsByUserId(userEntity.getId())
                 .stream()
                 .map(mapper::toResponse)
                 .toList();

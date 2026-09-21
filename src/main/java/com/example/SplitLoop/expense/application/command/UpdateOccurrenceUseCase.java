@@ -8,7 +8,7 @@ import com.example.SplitLoop.expense.domain.service.ExpenseOccurrenceService;
 import com.example.SplitLoop.expense.exception.ExpenseOccurrenceNotFoundException;
 import com.example.SplitLoop.expense.mapper.ExpenseOccurrenceMapper;
 import com.example.SplitLoop.group.exception.UserNotFoundException;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class UpdateOccurrenceUseCase {
         ExpenseOccurrence occurrence = occurrenceRepository.findById(occurrenceId)
                 .orElseThrow(() -> new ExpenseOccurrenceNotFoundException(occurrenceId));
 
-        User paidBy = userRepository.findById(request.getPaidById())
+        UserEntity paidBy = userRepository.findById(request.getPaidById())
                 .orElseThrow(() -> new UserNotFoundException(request.getPaidById()));
 
         mapper.updateEntity(

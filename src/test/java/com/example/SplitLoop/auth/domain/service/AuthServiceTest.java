@@ -1,15 +1,14 @@
 package com.example.SplitLoop.auth.domain.service;
 
-import com.example.SplitLoop.auth.controller.request.LoginRequest;
-import com.example.SplitLoop.auth.controller.request.RegisterRequest;
-import com.example.SplitLoop.auth.controller.response.AuthResponse;
-import com.example.SplitLoop.auth.domain.entity.RefreshToken;
-import com.example.SplitLoop.auth.domain.repository.RefreshTokenRepository;
-import com.example.SplitLoop.auth.exception.InvalidBearerTokenException;
-import com.example.SplitLoop.auth.exception.InvalidRefreshTokenException;
-import com.example.SplitLoop.auth.exception.RefreshTokenRequiredException;
+import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.LoginRequest;
+import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.RegisterRequest;
+import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.response.AuthResponse;
+import com.example.SplitLoop.auth.infrastructure.persistence.entity.RefreshTokenEntity;
+import com.example.SplitLoop.auth.infrastructure.persistence.jpa.SpringDataRefreshTokenRepository;
+import com.example.SplitLoop.auth.domain.exception.InvalidRefreshTokenException;
+import com.example.SplitLoop.auth.application.exception.RefreshTokenRequiredException;
 import com.example.SplitLoop.group.exception.EmailAlreadyExistsException;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import com.example.SplitLoop.util.mother.RefreshTokenMother;
 import com.example.SplitLoop.util.mother.UserMother;
@@ -37,7 +36,7 @@ class AuthServiceTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private RefreshTokenRepository refreshTokenRepository;
+    private SpringDataRefreshTokenRepository springDataRefreshTokenRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
@@ -56,21 +55,21 @@ class AuthServiceTest {
     @DisplayName("Register: Debe registrar al usuario y devolver AuthResponse cuando el email no existe")
     void debeRegistrarUsuarioExitosamente() {
         RegisterRequest request = new RegisterRequest("john", "john@test.com", "password123");
-        User userGuardado = UserMother.user();
-        RefreshToken refreshToken = RefreshTokenMother.refreshTokenForUser(userGuardado);
+        UserEntity userEntityGuardado = UserMother.userEntity();
+        RefreshTokenEntity refreshTokenEntity = RefreshTokenMother.refreshTokenEntityForUser(userEntityGuardado);
 
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn("encoded_password");
-        when(userRepository.save(any(User.class))).thenReturn(userGuardado);
-        when(jwtService.generateAccessToken(any(User.class))).thenReturn("access-token-jwt");
-        when(refreshTokenService.createRefreshToken(any(User.class))).thenReturn(refreshToken);
+        when(userRepository.save(any(UserEntity.class))).thenReturn(userEntityGuardado);
+        when(jwtService.generateAccessToken(any(UserEntity.class))).thenReturn("access-token-jwt");
+        when(refreshTokenService.createRefreshToken(any(UserEntity.class))).thenReturn(refreshTokenEntity);
 
         AuthResponse response = authService.register(request);
 
         assertThat(response).isNotNull();
         assertThat(response.accessToken()).isEqualTo("access-token-jwt");
-        assertThat(response.refreshToken()).isEqualTo(refreshToken.getToken());
-        verify(userRepository).save(any(User.class));
+        assertThat(response.refreshToken()).isEqualTo(refreshTokenEntity.getToken());
+        verify(userRepository).save(any(UserEntity.class));
     }
 
     @Test
@@ -90,19 +89,19 @@ class AuthServiceTest {
     @DisplayName("Login: Debe autenticar y devolver AuthResponse")
     void debeAutenticarYDevolverTokens() {
         LoginRequest request = new LoginRequest("john@test.com", "password123");
-        User usuario = UserMother.user();
-        RefreshToken refreshToken = RefreshTokenMother.refreshTokenForUser(usuario);
+        UserEntity usuario = UserMother.userEntity();
+        RefreshTokenEntity refreshTokenEntity = RefreshTokenMother.refreshTokenEntityForUser(usuario);
         Authentication authMock = mock(Authentication.class);
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(authMock);
         when(authMock.getPrincipal()).thenReturn(usuario);
         when(jwtService.generateAccessToken(usuario)).thenReturn("access-token-jwt");
-        when(refreshTokenService.createRefreshToken(usuario)).thenReturn(refreshToken);
+        when(refreshTokenService.createRefreshToken(usuario)).thenReturn(refreshTokenEntity);
 
         AuthResponse response = authService.login(request);
 
         assertThat(response.accessToken()).isEqualTo("access-token-jwt");
-        assertThat(response.refreshToken()).isEqualTo(refreshToken.getToken());
+        assertThat(response.refreshToken()).isEqualTo(refreshTokenEntity.getToken());
     }
 
     @Test
@@ -120,22 +119,22 @@ class AuthServiceTest {
     @DisplayName("RefreshToken: Debe generar un nuevo AccessToken y un nuevo RefreshToken (Rotación)")
     void debeRefrescarTokenExitosamente() {
         // 1. Arrange
-        User usuario = UserMother.user();
-        RefreshToken oldRefreshToken = RefreshTokenMother.refreshTokenForUser(usuario);
+        UserEntity usuario = UserMother.userEntity();
+        RefreshTokenEntity oldRefreshTokenEntity = RefreshTokenMother.refreshTokenEntityForUser(usuario);
 
         // Creamos un nuevo RefreshToken con una cadena distinta para validar la rotación
-        RefreshToken newRefreshToken = RefreshTokenMother.refreshTokenForUser(usuario);
-        newRefreshToken.setToken("nuevo-refresh-token-uuid");
+        RefreshTokenEntity newRefreshTokenEntity = RefreshTokenMother.refreshTokenEntityForUser(usuario);
+        newRefreshTokenEntity.setToken("nuevo-refresh-token-uuid");
 
-        when(refreshTokenService.findByToken(oldRefreshToken.getToken())).thenReturn(Optional.of(oldRefreshToken));
-        when(refreshTokenService.verifyExpiration(oldRefreshToken)).thenReturn(oldRefreshToken);
+        when(refreshTokenService.findByToken(oldRefreshTokenEntity.getToken())).thenReturn(Optional.of(oldRefreshTokenEntity));
+        when(refreshTokenService.verifyExpiration(oldRefreshTokenEntity)).thenReturn(oldRefreshTokenEntity);
         when(jwtService.generateAccessToken(usuario)).thenReturn("new-access-token-jwt");
 
         // Agregamos el mock para la creación del nuevo RefreshToken
-        when(refreshTokenService.createRefreshToken(usuario)).thenReturn(newRefreshToken);
+        when(refreshTokenService.createRefreshToken(usuario)).thenReturn(newRefreshTokenEntity);
 
         // 2. Act
-        AuthResponse response = authService.refreshToken(oldRefreshToken.getToken());
+        AuthResponse response = authService.refreshToken(oldRefreshTokenEntity.getToken());
 
         // 3. Assert
         assertThat(response.accessToken()).isEqualTo("new-access-token-jwt");
@@ -143,8 +142,8 @@ class AuthServiceTest {
         assertThat(response.refreshToken()).isEqualTo("nuevo-refresh-token-uuid");
 
         // Opcional: Verificar interacciones
-        verify(refreshTokenService).findByToken(oldRefreshToken.getToken());
-        verify(refreshTokenService).verifyExpiration(oldRefreshToken);
+        verify(refreshTokenService).findByToken(oldRefreshTokenEntity.getToken());
+        verify(refreshTokenService).verifyExpiration(oldRefreshTokenEntity);
         verify(refreshTokenService).createRefreshToken(usuario);
     }
 
@@ -167,7 +166,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("Logout: Debe eliminar los refresh tokens si la cabecera Bearer es válida")
     void debeEliminarTokensEnLogoutExitoso() {
-        User usuario = UserMother.user();
+        UserEntity usuario = UserMother.userEntity();
         String header = "Bearer token-valido";
 
         when(jwtService.extractUsername("token-valido")).thenReturn(usuario.getEmail());
@@ -175,7 +174,7 @@ class AuthServiceTest {
 
         authService.logoutWithBearerToken(header);
 
-        verify(refreshTokenRepository).deleteByUser(usuario);
+        verify(springDataRefreshTokenRepository).deleteByUser(usuario);
     }
 
     @Test
@@ -187,7 +186,7 @@ class AuthServiceTest {
         authService.logoutWithBearerToken(header);
 
         verify(userRepository, never()).findByEmail(any());
-        verify(refreshTokenRepository, never()).deleteByUser(any());
+        verify(springDataRefreshTokenRepository, never()).deleteByUser(any());
     }
 
     @Test
@@ -195,6 +194,6 @@ class AuthServiceTest {
     void debeIgnorarLogoutSiHeaderNoEsBearer() {
         authService.logoutWithBearerToken("Basic 123456");
 
-        verifyNoInteractions(jwtService, userRepository, refreshTokenRepository);
+        verifyNoInteractions(jwtService, userRepository, springDataRefreshTokenRepository);
     }
 }

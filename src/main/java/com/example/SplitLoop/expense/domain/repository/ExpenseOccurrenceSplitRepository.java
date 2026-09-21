@@ -6,13 +6,12 @@ import com.example.SplitLoop.expense.domain.entity.RecurringExpenseParticipant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface ExpenseOccurrenceSplitRepository extends JpaRepository<ExpenseOccurrenceSplit, UUID>, JpaSpecificationExecutor<ExpenseOccurrenceSplit> {
-
-    List<RecurringExpenseParticipant> findByUserId(UUID userId);
 
     List<ExpenseOccurrenceSplit> findByOccurrence(ExpenseOccurrence occurrence);
 
@@ -25,7 +24,7 @@ public interface ExpenseOccurrenceSplitRepository extends JpaRepository<ExpenseO
           AND s.occurrence.recurringExpense.group.id = :groupId
           AND s.amountPaid < s.amountOwed
     """)
-    boolean existsPendingDebt(UUID groupId, UUID userId);
+    boolean existsPendingDebt(@Param("groupId") UUID groupId, @Param("userId") UUID userId);
 
     List<ExpenseOccurrenceSplit> findByOccurrenceGroupId(UUID groupId);
 }

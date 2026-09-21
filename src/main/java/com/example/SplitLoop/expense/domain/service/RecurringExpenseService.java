@@ -3,7 +3,7 @@ package com.example.SplitLoop.expense.domain.service;
 import com.example.SplitLoop.expense.domain.entity.RecurringExpense;
 import com.example.SplitLoop.expense.domain.entity.RecurringExpenseParticipant;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,7 +29,7 @@ public interface RecurringExpenseService {
     RecurringExpense duplicateRecurringExpense(
             RecurringExpense original,
             List<RecurringExpenseParticipant> participants,
-            User createdBy,
+            UserEntity createdBy,
             LocalDate startDate,
             List<GroupMember> groupMembers);
 

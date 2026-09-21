@@ -3,7 +3,7 @@ package com.example.SplitLoop.expense.mapper;
 import com.example.SplitLoop.expense.controller.request.ParticipantRequest;
 import com.example.SplitLoop.expense.domain.entity.RecurringExpenseParticipant;
 import com.example.SplitLoop.group.exception.UserNotFoundException;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -27,24 +27,24 @@ public class RecurringExpenseParticipantMapper {
                 .map(ParticipantRequest::getUserId)
                 .toList();
 
-        Map<UUID, User> users = userRepository.findAllById(ids)
+        Map<UUID, UserEntity> users = userRepository.findAllById(ids)
                 .stream()
                 .collect(Collectors.toMap(
-                        User::getId,
+                        UserEntity::getId,
                         Function.identity()));
 
         return requests.stream()
                 .map(request -> {
 
-                    User user = users.get(request.getUserId());
+                    UserEntity userEntity = users.get(request.getUserId());
 
-                    if (user == null) {
+                    if (userEntity == null) {
                         throw new UserNotFoundException(
                                 request.getUserId());
                     }
 
                     return RecurringExpenseParticipant.builder()
-                            .user(user)
+                            .user(userEntity)
                             .value(request.getSplitValue())
                             .build();
                 })

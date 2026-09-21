@@ -1,18 +1,16 @@
 package com.example.SplitLoop.auth.domain.service;
 
-import com.example.SplitLoop.auth.controller.request.LoginRequest;
-import com.example.SplitLoop.auth.controller.request.RegisterRequest;
-import com.example.SplitLoop.auth.controller.response.AuthResponse;
-import com.example.SplitLoop.auth.domain.entity.RefreshToken;
-import com.example.SplitLoop.auth.domain.repository.RefreshTokenRepository;
-import com.example.SplitLoop.auth.exception.InvalidBearerTokenException;
-import com.example.SplitLoop.auth.exception.InvalidRefreshTokenException;
-import com.example.SplitLoop.auth.exception.RefreshTokenRequiredException;
+import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.LoginRequest;
+import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.RegisterRequest;
+import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.response.AuthResponse;
+import com.example.SplitLoop.auth.infrastructure.persistence.entity.RefreshTokenEntity;
+import com.example.SplitLoop.auth.infrastructure.persistence.jpa.SpringDataRefreshTokenRepository;
+import com.example.SplitLoop.auth.domain.exception.InvalidRefreshTokenException;
+import com.example.SplitLoop.auth.application.exception.RefreshTokenRequiredException;
 import com.example.SplitLoop.group.exception.EmailAlreadyExistsException;
 import com.example.SplitLoop.user.domain.entity.Role;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
-import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final SpringDataRefreshTokenRepository springDataRefreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
@@ -40,20 +38,20 @@ public class AuthService {
         }
 
         // 2. Construir y guardar el nuevo usuario con contraseña encriptada
-        User user = User.builder()
+        UserEntity userEntity = UserEntity.builder()
                 .username(request.username())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .role(Role.USER)
                 .build();
 
-        User savedUser = userRepository.save(user);
+        UserEntity savedUserEntity = userRepository.save(userEntity);
 
         // 3. Generar los tokens (El Refresh Token se persiste automáticamente dentro del jwtService)
-        String accessToken = jwtService.generateAccessToken(savedUser);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(savedUser);
+        String accessToken = jwtService.generateAccessToken(savedUserEntity);
+        RefreshTokenEntity refreshTokenEntity = refreshTokenService.createRefreshToken(savedUserEntity);
 
-        return new AuthResponse(accessToken, refreshToken.getToken());
+        return new AuthResponse(accessToken, refreshTokenEntity.getToken());
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -64,12 +62,12 @@ public class AuthService {
                 )
         );
 
-        User user = (User) authentication.getPrincipal();
+        UserEntity userEntity = (UserEntity) authentication.getPrincipal();
 
-        String accessToken = jwtService.generateAccessToken(user);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+        String accessToken = jwtService.generateAccessToken(userEntity);
+        RefreshTokenEntity refreshTokenEntity = refreshTokenService.createRefreshToken(userEntity);
 
-        return new AuthResponse(accessToken, refreshToken.getToken());
+        return new AuthResponse(accessToken, refreshTokenEntity.getToken());
     }
 
     @Transactional
@@ -79,20 +77,20 @@ public class AuthService {
         }
 
         // 1. Buscar en BD
-        RefreshToken oldToken = refreshTokenService.findByToken(refreshTokenStr)
+        RefreshTokenEntity oldToken = refreshTokenService.findByToken(refreshTokenStr)
                 .orElseThrow(() -> new InvalidRefreshTokenException("Refresh Token no encontrado"));
 
         // 2. Validar expiración (Si expiró, el servicio lo elimina de la BD y lanza excepción)
         refreshTokenService.verifyExpiration(oldToken);
 
-        User user = oldToken.getUser();
+        UserEntity userEntity = oldToken.getUser();
 
         // 3. Generar nuevos tokens:
         // createRefreshToken(user) BORRA el viejo token del usuario y GUARDA el nuevo en un solo paso
-        String newAccessToken = jwtService.generateAccessToken(user);
-        RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user);
+        String newAccessToken = jwtService.generateAccessToken(userEntity);
+        RefreshTokenEntity newRefreshTokenEntity = refreshTokenService.createRefreshToken(userEntity);
 
-        return new AuthResponse(newAccessToken, newRefreshToken.getToken());
+        return new AuthResponse(newAccessToken, newRefreshTokenEntity.getToken());
     }
 
     @Transactional
@@ -119,6 +117,6 @@ public class AuthService {
 
     @Transactional
     public void deleteRefreshTokenForUser(String email) {
-        userRepository.findByEmail(email).ifPresent(refreshTokenRepository::deleteByUser);
+        userRepository.findByEmail(email).ifPresent(springDataRefreshTokenRepository::deleteByUser);
     }
 }

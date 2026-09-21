@@ -3,7 +3,7 @@ package com.example.SplitLoop.expense.domain.validator;
 import com.example.SplitLoop.expense.domain.entity.*;
 import com.example.SplitLoop.expense.exception.*;
 import com.example.SplitLoop.group.exception.InsufficientPermissionsException;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.util.mother.UserMother;
 import com.example.SplitLoop.util.TestData.ExpenseContext;
 import com.example.SplitLoop.util.TestData.ExpenseFixture;
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -253,8 +254,9 @@ class ExpenseValidatorImplTest {
     @Test
     void shouldThrowWhenParticipantIsNotGroupMember() {
 
-        User outsider = UserMother.user()
+        UserEntity outsider = UserMother.userEntity()
                 .toBuilder()
+                .id(UUID.randomUUID())
                 .email("outsider@test.com")
                 .username("outsider")
                 .build();
@@ -454,7 +456,7 @@ class ExpenseValidatorImplTest {
                         .amount(BigDecimal.valueOf(30))
                         .build();
 
-        User thirdUser = UserMother.user()
+        UserEntity thirdUserEntity = UserMother.userEntity()
                 .toBuilder()
                 .username("third")
                 .email("third@test.com")
@@ -476,7 +478,7 @@ class ExpenseValidatorImplTest {
 
                 RecurringExpenseParticipant.builder()
                         .recurringExpense(recurringExpense)
-                        .user(thirdUser)
+                        .user(thirdUserEntity)
                         .value(BigDecimal.TEN)
                         .build());
 
@@ -564,7 +566,7 @@ class ExpenseValidatorImplTest {
         assertDoesNotThrow(() ->
                 validator.validateCanChangePaidBy(
                         context.getOccurrence(),
-                        context.getSecondUser(),
+                        context.getSecondUserEntity(),
                         context.getAdmin()));
     }
 
@@ -575,7 +577,7 @@ class ExpenseValidatorImplTest {
                 InsufficientPermissionsException.class,
                 () -> validator.validateCanChangePaidBy(
                         context.getOccurrence(),
-                        context.getSecondUser(),
+                        context.getSecondUserEntity(),
                         context.getMember()));
     }
 
@@ -602,7 +604,7 @@ class ExpenseValidatorImplTest {
                 CannotModifyPaidOccurrenceException.class,
                 () -> validator.validateCanChangePaidBy(
                         occurrence,
-                        context.getSecondUser(),
+                        context.getSecondUserEntity(),
                         context.getAdmin()));
     }
 
@@ -618,7 +620,7 @@ class ExpenseValidatorImplTest {
                 CannotModifyPartiallyPaidOccurrenceException.class,
                 () -> validator.validateCanChangePaidBy(
                         occurrence,
-                        context.getSecondUser(),
+                        context.getSecondUserEntity(),
                         context.getAdmin()));
     }
 
@@ -633,7 +635,7 @@ class ExpenseValidatorImplTest {
         assertDoesNotThrow(() ->
                 validator.validateCanChangePaidBy(
                         occurrence,
-                        context.getSecondUser(),
+                        context.getSecondUserEntity(),
                         context.getAdmin()));
     }
 

@@ -4,7 +4,7 @@ import com.example.SplitLoop.expense.domain.entity.*;
 import com.example.SplitLoop.expense.domain.repository.ExpenseOccurrenceRepository;
 import com.example.SplitLoop.expense.domain.validator.ExpenseValidator;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +57,7 @@ public class ExpenseOccurrenceServiceImpl implements ExpenseOccurrenceService {
     }
 
     @Override
-    public ExpenseOccurrence changePaidBy(ExpenseOccurrence occurrence, User newPaidBy, GroupMember member) {
+    public ExpenseOccurrence changePaidBy(ExpenseOccurrence occurrence, UserEntity newPaidBy, GroupMember member) {
 
         validator.validateCanChangePaidBy(occurrence, newPaidBy, member);
 

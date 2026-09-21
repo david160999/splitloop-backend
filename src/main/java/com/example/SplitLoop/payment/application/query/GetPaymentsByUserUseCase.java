@@ -8,7 +8,7 @@ import com.example.SplitLoop.payment.controller.response.PaymentResponse;
 import com.example.SplitLoop.payment.domain.entity.Payment;
 import com.example.SplitLoop.payment.domain.repository.PaymentRepository;
 import com.example.SplitLoop.payment.mapper.PaymentMapper;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,10 +27,10 @@ public class GetPaymentsByUserUseCase {
     @Transactional(readOnly = true)
     public PageResponse<PaymentResponse> execute(GetPaymentsByUserQuery request, Pageable pageable) {
 
-        User user = userRepository.findById(request.getUserId())
+        UserEntity userEntity = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
 
-        Page<Payment> page = paymentRepository.findByFromUserOrToUser(user, user, pageable);
+        Page<Payment> page = paymentRepository.findByFromUserOrToUser(userEntity, userEntity, pageable);
 
         return PageResponseMapper.map(page, mapper::toResponse);
 

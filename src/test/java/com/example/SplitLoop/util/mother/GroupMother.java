@@ -1,7 +1,7 @@
 package com.example.SplitLoop.util.mother;
 
 import com.example.SplitLoop.group.domain.entity.Group;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -13,10 +13,10 @@ public final class GroupMother {
 
     public static Group group() {
 
-        return group(UserMother.user());
+        return group(UserMother.userEntity());
     }
 
-    public static Group group(User createdBy) {
+    public static Group group(UserEntity createdBy) {
 
         return Group.builder()
                 .id(UUID.randomUUID())

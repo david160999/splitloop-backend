@@ -1,9 +1,8 @@
 package com.example.SplitLoop.auth.domain.service;
 
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.util.mother.UserMother;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,7 @@ import static org.assertj.core.api.Assertions.*;
 class JwtServiceTest {
 
     private JwtService jwtService;
-    private User usuarioPrueba;
+    private UserEntity usuarioPrueba;
 
     private final String testSecretKey = "dGhpc0lzQVN1cGVyU2VjcmV0S2V5Rm9ySldUVGVzdGluZ1B1cnBvc2VzMTIzNDU2Nzg5MA";
     private final long testExpiration = 3600000; // 1 hora
@@ -30,7 +29,7 @@ class JwtServiceTest {
         ReflectionTestUtils.setField(jwtService, "jwtExpiration", testExpiration);
         ReflectionTestUtils.invokeMethod(jwtService, "initSigningKey");
 
-        usuarioPrueba = UserMother.user();
+        usuarioPrueba = UserMother.userEntity();
     }
 
     @Test
@@ -74,7 +73,7 @@ class JwtServiceTest {
     void debeInvalidarTokenSiUsuarioDifiere() {
         String token = jwtService.generateAccessToken(usuarioPrueba);
 
-        User otroUsuario = new User();
+        UserEntity otroUsuario = new UserEntity();
         otroUsuario.setId(UUID.randomUUID());
         otroUsuario.setEmail("otro@email.com");
 

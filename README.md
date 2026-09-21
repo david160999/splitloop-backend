@@ -88,7 +88,7 @@ src/main/java/com/example/SplitLoop
 │
 ├── payment/
 │
-├── user/
+├── userEntity/
 │
 └── SplitLoopApplication.java
 ```
@@ -559,7 +559,7 @@ splitloop-backend/
 │   │   │       ├── expense/
 │   │   │       ├── group/
 │   │   │       ├── payment/
-│   │   │       └── user/
+│   │   │       └── userEntity/
 │   │   │
 │   │   └── resources/
 │   │       ├── db/

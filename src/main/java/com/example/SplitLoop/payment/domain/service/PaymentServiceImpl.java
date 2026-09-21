@@ -11,7 +11,7 @@ import com.example.SplitLoop.payment.domain.entity.Payment;
 import com.example.SplitLoop.payment.domain.entity.PaymentType;
 import com.example.SplitLoop.payment.domain.repository.PaymentRepository;
 import com.example.SplitLoop.payment.domain.validator.PaymentValidator;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +43,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Payment refundPayment(Payment originalPayment, GroupMember member, User createdBy, BigDecimal amount) {
+    public Payment refundPayment(Payment originalPayment, GroupMember member, UserEntity createdBy, BigDecimal amount) {
 
         validator.validateCanRefund(originalPayment, amount);
 

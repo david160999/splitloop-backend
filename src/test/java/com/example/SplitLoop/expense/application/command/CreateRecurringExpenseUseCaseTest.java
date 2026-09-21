@@ -123,7 +123,7 @@ class CreateRecurringExpenseUseCaseTest extends BaseIntegrationTest {
                                 .build(),
 
                         ParticipantRequest.builder()
-                                .userId(context.getSecondUser().getId())
+                                .userId(context.getSecondUserEntity().getId())
                                 .splitValue(BigDecimal.valueOf(10))
                                 .build()
 

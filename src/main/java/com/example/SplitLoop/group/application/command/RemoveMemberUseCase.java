@@ -6,7 +6,7 @@ import com.example.SplitLoop.group.domain.repository.GroupRepository;
 import com.example.SplitLoop.group.domain.service.GroupService;
 import com.example.SplitLoop.group.exception.GroupNotFoundException;
 import com.example.SplitLoop.group.exception.UserNotFoundException;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +28,9 @@ public class RemoveMemberUseCase {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
-        User requester = currentUserService.getCurrentUser();
+        UserEntity requester = currentUserService.getCurrentUser();
 
-        User member = userRepository.findById(userId)
+        UserEntity member = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         groupService.removeMember(group, requester, member);

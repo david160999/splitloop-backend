@@ -1,9 +1,7 @@
 package com.example.SplitLoop.user.domain.service;
 
-import com.example.SplitLoop.user.controller.command.CreateUserRequest;
 import com.example.SplitLoop.user.controller.response.UserResponse;
-import com.example.SplitLoop.user.domain.entity.User;
-import jakarta.validation.constraints.NotBlank;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,7 +11,7 @@ public interface UserService {
     UserResponse getByEmail(String email);
 
     void changePassword(
-            User user,
+            UserEntity userEntity,
             String currentPassword,
             String newPassword,
             String confirmPassword);
@@ -22,5 +20,5 @@ public interface UserService {
 
     void deleteUser(UUID id);
 
-    void updateUser(User currentUser, String username, String email);
+    void updateUser(UserEntity currentUserEntity, String username, String email);
 }

@@ -6,7 +6,7 @@ import com.example.SplitLoop.expense.domain.entity.RecurringExpense;
 import com.example.SplitLoop.expense.domain.entity.RecurringExpenseParticipant;
 import com.example.SplitLoop.group.domain.entity.Group;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -17,8 +17,8 @@ import java.util.List;
 public class ExpenseContext {
 
     // Users
-    private User owner;
-    private User secondUser;
+    private UserEntity owner;
+    private UserEntity secondUserEntity;
 
     // Group
     private Group group;

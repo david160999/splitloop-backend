@@ -3,7 +3,7 @@ package com.example.SplitLoop.util.mother;
 import com.example.SplitLoop.group.domain.entity.Group;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
 import com.example.SplitLoop.group.domain.entity.MemberRole;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 
 import java.util.UUID;
 
@@ -14,36 +14,36 @@ public final class GroupMemberMother {
 
     public static GroupMember admin() {
 
-        User user = UserMother.user();
-        Group group = GroupMother.group(user);
+        UserEntity userEntity = UserMother.userEntity();
+        Group group = GroupMother.group(userEntity);
 
-        return admin(group, user);
+        return admin(group, userEntity);
     }
 
-    public static GroupMember admin(Group group, User user) {
+    public static GroupMember admin(Group group, UserEntity userEntity) {
 
         return GroupMember.builder()
                 .id(UUID.randomUUID())
                 .group(group)
-                .user(user)
+                .user(userEntity)
                 .memberRole(MemberRole.ADMIN)
                 .build();
     }
 
     public static GroupMember member() {
 
-        User user = UserMother.user();
-        Group group = GroupMother.group(user);
+        UserEntity userEntity = UserMother.userEntity();
+        Group group = GroupMother.group(userEntity);
 
-        return member(group, user);
+        return member(group, userEntity);
     }
 
-    public static GroupMember member(Group group, User user) {
+    public static GroupMember member(Group group, UserEntity userEntity) {
 
         return GroupMember.builder()
                 .id(UUID.randomUUID())
                 .group(group)
-                .user(user)
+                .user(userEntity)
                 .memberRole(MemberRole.MEMBER)
                 .build();
     }

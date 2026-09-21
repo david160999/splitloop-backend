@@ -1,9 +1,9 @@
 package com.example.SplitLoop.auth.domain.service;
 
-import com.example.SplitLoop.auth.domain.entity.RefreshToken;
-import com.example.SplitLoop.auth.domain.repository.RefreshTokenRepository;
-import com.example.SplitLoop.auth.exception.TokenExpiredException;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.auth.infrastructure.persistence.entity.RefreshTokenEntity;
+import com.example.SplitLoop.auth.infrastructure.persistence.jpa.SpringDataRefreshTokenRepository;
+import com.example.SplitLoop.auth.domain.exception.TokenExpiredException;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,34 +18,34 @@ public class RefreshTokenService {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
 
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final SpringDataRefreshTokenRepository springDataRefreshTokenRepository;
 
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository) {
-        this.refreshTokenRepository = refreshTokenRepository;
+    public RefreshTokenService(SpringDataRefreshTokenRepository springDataRefreshTokenRepository) {
+        this.springDataRefreshTokenRepository = springDataRefreshTokenRepository;
     }
 
     @Transactional
-    public RefreshToken createRefreshToken(User user) {
-        refreshTokenRepository.deleteByUser(user);
+    public RefreshTokenEntity createRefreshToken(UserEntity userEntity) {
+        springDataRefreshTokenRepository.deleteByUser(userEntity);
 
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setUser(user);
-        refreshToken.setToken(UUID.randomUUID().toString());
-        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshExpiration));
+        RefreshTokenEntity refreshTokenEntity = new RefreshTokenEntity();
+        refreshTokenEntity.setUser(userEntity);
+        refreshTokenEntity.setToken(UUID.randomUUID().toString());
+        refreshTokenEntity.setExpiryDate(Instant.now().plusMillis(refreshExpiration));
 
-        return refreshTokenRepository.save(refreshToken);
+        return springDataRefreshTokenRepository.save(refreshTokenEntity);
     }
 
     @Transactional
-    public RefreshToken verifyExpiration(RefreshToken token) {
+    public RefreshTokenEntity verifyExpiration(RefreshTokenEntity token) {
         if (token.getExpiryDate().isBefore(Instant.now())) {
-            refreshTokenRepository.delete(token);
+            springDataRefreshTokenRepository.delete(token);
             throw new TokenExpiredException("El Refresh Token ha expirado. Inicie sesión nuevamente.");
         }
         return token;
     }
 
-    public Optional<RefreshToken> findByToken(String token) {
-        return refreshTokenRepository.findByToken(token);
+    public Optional<RefreshTokenEntity> findByToken(String token) {
+        return springDataRefreshTokenRepository.findByToken(token);
     }
 }

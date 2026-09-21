@@ -4,7 +4,7 @@ import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
 import com.example.SplitLoop.payment.domain.entity.Payment;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 
 import java.math.BigDecimal;
 
@@ -14,7 +14,7 @@ public interface PaymentService {
 
     Payment refundPayment(
             Payment originalPayment,
-            GroupMember member, User createdBy,
+            GroupMember member, UserEntity createdBy,
             BigDecimal amount);
 
     void updateSplitStatus(ExpenseOccurrenceSplit split);

@@ -2,7 +2,7 @@ package com.example.SplitLoop.user.application.command;
 
 import com.example.SplitLoop.user.controller.command.UpdateUserRequest;
 import com.example.SplitLoop.user.controller.response.UserResponse;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.service.CurrentUserService;
 import com.example.SplitLoop.user.domain.service.UserService;
 import com.example.SplitLoop.user.mapper.UserMapper;
@@ -21,10 +21,10 @@ public class UpdateCurrentUserUseCase {
     @Transactional
     public UserResponse execute(UpdateUserRequest request) {
 
-        User currentUser = currentUserService.getCurrentUser();
+        UserEntity currentUserEntity = currentUserService.getCurrentUser();
 
-        userService.updateUser(currentUser, request.getUsername(), request.getEmail());
+        userService.updateUser(currentUserEntity, request.getUsername(), request.getEmail());
 
-        return userMapper.toResponse(currentUser);
+        return userMapper.toResponse(currentUserEntity);
     }
 }

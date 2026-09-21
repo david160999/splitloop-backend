@@ -4,7 +4,7 @@ import com.example.SplitLoop.balance.domain.modelo.Balance;
 import com.example.SplitLoop.balance.domain.modelo.Debt;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
 import com.example.SplitLoop.expense.domain.repository.ExpenseOccurrenceSplitRepository;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +52,7 @@ public class BalanceServiceImpl implements BalanceService {
         List<Balance> debtors = balances.stream()
                 .filter(balance -> balance.getAmount().compareTo(BigDecimal.ZERO) < 0)
                 .map(balance -> Balance.builder()
-                        .user(balance.getUser())
+                        .userEntity(balance.getUserEntity())
                         .amount(balance.getAmount().abs())
                         .build())
                 .sorted(Comparator.comparing(Balance::getAmount).reversed())
@@ -71,8 +71,8 @@ public class BalanceServiceImpl implements BalanceService {
             BigDecimal amount = creditor.getAmount().min(debtor.getAmount());
 
             debts.add(Debt.builder()
-                    .creditor(creditor.getUser())
-                    .debtor(debtor.getUser())
+                    .creditor(creditor.getUserEntity())
+                    .debtor(debtor.getUserEntity())
                     .amount(amount)
                     .build());
 
@@ -93,17 +93,17 @@ public class BalanceServiceImpl implements BalanceService {
 
     private void addBalance(
             Map<UUID, Balance> balances,
-            User user,
+            UserEntity userEntity,
             BigDecimal amount) {
 
         balances.computeIfAbsent(
-                user.getId(),
+                userEntity.getId(),
                 id -> Balance.builder()
-                        .user(user)
+                        .userEntity(userEntity)
                         .amount(BigDecimal.ZERO)
                         .build());
 
-        Balance balance = balances.get(user.getId());
+        Balance balance = balances.get(userEntity.getId());
 
         balance.setAmount(balance.getAmount().add(amount));
     }

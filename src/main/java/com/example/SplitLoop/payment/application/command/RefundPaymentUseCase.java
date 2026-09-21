@@ -1,5 +1,6 @@
 package com.example.SplitLoop.payment.application.command;
 
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.service.CurrentUserService;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
 import com.example.SplitLoop.group.domain.repository.GroupMemberRepository;
@@ -11,7 +12,6 @@ import com.example.SplitLoop.payment.domain.repository.PaymentRepository;
 import com.example.SplitLoop.payment.domain.service.PaymentService;
 import com.example.SplitLoop.payment.exception.PaymentNotFoundException;
 import com.example.SplitLoop.payment.mapper.PaymentMapper;
-import com.example.SplitLoop.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,16 +36,16 @@ public class RefundPaymentUseCase {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException(paymentId));
 
-        User currentUser = currentUserService.getCurrentUser();
+        UserEntity currentUserEntity = currentUserService.getCurrentUser();
 
         GroupMember member = groupMemberRepository
-                .findByGroupAndUser(payment.getOccurrence().getGroup(), currentUser)
-                .orElseThrow(() -> new UserNotInGroupException(currentUser.getId(), payment.getOccurrence().getGroup().getId()));
+                .findByGroupAndUser(payment.getOccurrence().getGroup(), currentUserEntity)
+                .orElseThrow(() -> new UserNotInGroupException(currentUserEntity.getId(), payment.getOccurrence().getGroup().getId()));
 
         Payment refund = paymentService.refundPayment(
                 payment,
                 member,
-                currentUser,
+                currentUserEntity,
                 request.getAmount());
 
         return mapper.toResponse(refund);

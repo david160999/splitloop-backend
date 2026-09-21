@@ -3,7 +3,7 @@ package com.example.SplitLoop.payment.domain.repository;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
 import com.example.SplitLoop.payment.domain.entity.Payment;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,11 +20,11 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID>, JpaSpec
 
     List<Payment> findBySplit(ExpenseOccurrenceSplit split);
 
-    List<Payment> findByFromUser(User fromUser);
+    List<Payment> findByFromUser(UserEntity fromUserEntity);
 
-    List<Payment> findByToUser(User toUser);
+    List<Payment> findByToUser(UserEntity toUserEntity);
 
-    Page<Payment> findByFromUserOrToUser(User fromUser, User toUser, Pageable pageable);
+    Page<Payment> findByFromUserOrToUser(UserEntity fromUserEntity, UserEntity toUserEntity, Pageable pageable);
 
     @Query("""
             select coalesce(sum(p.amount), 0)

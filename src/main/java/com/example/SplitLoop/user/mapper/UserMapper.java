@@ -1,8 +1,8 @@
 package com.example.SplitLoop.user.mapper;
 
-import com.example.SplitLoop.user.controller.command.CreateUserRequest;
 import com.example.SplitLoop.user.controller.response.UserResponse;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.user.domain.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -10,5 +10,9 @@ import org.mapstruct.Mapping;
 public interface UserMapper {
 
     @Mapping(target = "name", source = "username")
-    UserResponse toResponse(User user);
+    UserResponse toResponse(UserEntity userEntity);
+
+    User toDomain(UserEntity entity);
+
+    UserEntity toEntity(User domain);
 }

@@ -2,6 +2,7 @@ package com.example.SplitLoop.group.application.command;
 
 import com.example.SplitLoop.group.domain.entity.GroupMember;
 import com.example.SplitLoop.group.mapper.GroupMapper;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.service.CurrentUserService;
 import com.example.SplitLoop.group.controller.request.UpdateMemberRoleRequest;
 import com.example.SplitLoop.group.controller.response.GroupMemberResponse;
@@ -10,7 +11,6 @@ import com.example.SplitLoop.group.domain.repository.GroupRepository;
 import com.example.SplitLoop.group.domain.service.GroupService;
 import com.example.SplitLoop.group.exception.GroupNotFoundException;
 import com.example.SplitLoop.group.exception.UserNotFoundException;
-import com.example.SplitLoop.user.domain.entity.User;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,15 +36,15 @@ public class UpdateMemberRoleUseCase {
         Group group = groupRepository.findById(groupId)
                 .orElseThrow(() -> new GroupNotFoundException(groupId));
 
-        User requester = currentUserService.getCurrentUser();
+        UserEntity requester = currentUserService.getCurrentUser();
 
-        User targetUser = userRepository.findById(memberId)
+        UserEntity targetUserEntity = userRepository.findById(memberId)
                 .orElseThrow(() -> new UserNotFoundException(memberId));
 
         GroupMember member = groupService.updateMemberRole(
                 group,
                 requester,
-                targetUser,
+                targetUserEntity,
                 request.getNewRole());
 
         return groupMapper.toResponse(member);

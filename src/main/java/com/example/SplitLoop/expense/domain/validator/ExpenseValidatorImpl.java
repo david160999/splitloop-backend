@@ -4,7 +4,7 @@ import com.example.SplitLoop.expense.domain.entity.*;
 import com.example.SplitLoop.expense.exception.*;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
 import com.example.SplitLoop.group.exception.InsufficientPermissionsException;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -118,7 +118,7 @@ public class ExpenseValidatorImpl implements ExpenseValidator {
     }
 
     @Override
-    public void validateCanChangePaidBy(ExpenseOccurrence occurrence, User newPaidBy, GroupMember member) {
+    public void validateCanChangePaidBy(ExpenseOccurrence occurrence, UserEntity newPaidBy, GroupMember member) {
 
         validateIsAdmin(member);
 

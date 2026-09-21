@@ -5,7 +5,7 @@ import com.example.SplitLoop.group.domain.entity.GroupMember;
 import com.example.SplitLoop.group.domain.repository.GroupMemberRepository;
 import com.example.SplitLoop.group.domain.repository.GroupRepository;
 import com.example.SplitLoop.user.domain.entity.Role;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import com.example.SplitLoop.util.mother.GroupMemberMother;
 import com.example.SplitLoop.util.mother.GroupMother;
@@ -23,11 +23,11 @@ public class TestDataFactory {
 
     public ExpenseContext defaultContext() {
 
-        User owner = userRepository.save(
-                UserMother.user().toBuilder().id(null).role(Role.USER).build());
+        UserEntity owner = userRepository.save(
+                UserMother.userEntity().toBuilder().id(null).role(Role.USER).build());
 
-        User second = userRepository.save(
-                UserMother.anotherUser().toBuilder().id(null).role(Role.USER).build());
+        UserEntity second = userRepository.save(
+                UserMother.anotherUserEntity().toBuilder().id(null).role(Role.USER).build());
 
         Group group = groupRepository.save(
                 GroupMother.group(owner).toBuilder().id(null).build());
@@ -40,7 +40,7 @@ public class TestDataFactory {
 
         return ExpenseContext.builder()
                 .owner(owner)
-                .secondUser(second)
+                .secondUserEntity(second)
                 .group(group)
                 .admin(admin)
                 .member(member)

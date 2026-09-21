@@ -8,7 +8,7 @@ import com.example.SplitLoop.expense.controller.request.ParticipantRequest;
 import com.example.SplitLoop.expense.domain.entity.RecurringExpense;
 import com.example.SplitLoop.expense.domain.entity.RecurringExpenseParticipant;
 import com.example.SplitLoop.group.domain.entity.Group;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -31,8 +31,8 @@ public interface RecurringExpenseMapper {
     RecurringExpense toEntity(
             CreateRecurringExpenseCommand request,
             Group group,
-            User paidBy,
-            User createdBy);
+            UserEntity paidBy,
+            UserEntity createdBy);
 
     @Mapping(target = "group", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
@@ -44,7 +44,7 @@ public interface RecurringExpenseMapper {
     void updateEntity(
             UpdateRecurringExpenseCommand request,
             @MappingTarget RecurringExpense recurringExpense,
-            User paidBy);
+            UserEntity paidBy);
 
     @Mapping(target = "groupId", source = "group.id")
     @Mapping(target = "paidBy", source = "paidBy.id")
@@ -57,7 +57,7 @@ public interface RecurringExpenseMapper {
     @Mapping(target = "value", source = "request.splitValue")
     RecurringExpenseParticipant toParticipant(
             ParticipantRequest request,
-            User user);
+            UserEntity user);
 
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "username", source = "user.username")

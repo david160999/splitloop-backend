@@ -2,7 +2,7 @@ package com.example.SplitLoop.payment.domain.entity;
 
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
 import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,11 +33,11 @@ public class Payment {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "from_user_id", nullable = false)
-    private User fromUser;
+    private UserEntity fromUser;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "to_user_id", nullable = false)
-    private User toUser;
+    private UserEntity toUser;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
@@ -50,7 +50,7 @@ public class Payment {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
+    private UserEntity createdBy;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

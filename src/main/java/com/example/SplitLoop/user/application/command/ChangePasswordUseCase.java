@@ -1,7 +1,7 @@
 package com.example.SplitLoop.user.application.command;
 
 import com.example.SplitLoop.user.controller.command.ChangePasswordRequest;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.service.CurrentUserService;
 import com.example.SplitLoop.user.domain.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +18,10 @@ public class ChangePasswordUseCase {
     @Transactional
     public void execute(ChangePasswordRequest request) {
 
-        User currentUser = currentUserService.getCurrentUser();
+        UserEntity currentUserEntity = currentUserService.getCurrentUser();
 
         userService.changePassword(
-                currentUser,
+                currentUserEntity,
                 request.getCurrentPassword(),
                 request.getNewPassword(),
                 request.getConfirmPassword());

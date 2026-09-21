@@ -4,7 +4,7 @@ import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
 import com.example.SplitLoop.expense.domain.entity.RecurringExpense;
 import com.example.SplitLoop.expense.domain.entity.RecurringExpenseParticipant;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public interface ExpenseValidator {
 
     void validateCanCancel(ExpenseOccurrence occurrence, GroupMember currentUser);
 
-    void validateCanChangePaidBy(ExpenseOccurrence occurrence, User newPaidBy, GroupMember member);
+    void validateCanChangePaidBy(ExpenseOccurrence occurrence, UserEntity newPaidBy, GroupMember member);
 
     void validateCanPause(RecurringExpense recurringExpense, GroupMember member);
 

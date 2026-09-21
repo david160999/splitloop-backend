@@ -1,15 +1,13 @@
 package com.example.SplitLoop.auth.integration;
 
-import com.example.SplitLoop.auth.controller.request.LoginRequest;
-import com.example.SplitLoop.auth.controller.request.LoginRequestMother;
-import com.example.SplitLoop.auth.controller.request.RegisterRequest;
-import com.example.SplitLoop.auth.controller.request.RequestMother;
-import com.example.SplitLoop.auth.domain.entity.RefreshToken;
-import com.example.SplitLoop.auth.domain.repository.RefreshTokenRepository;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.LoginRequest;
+import com.example.SplitLoop.auth.infrastructure.presentation.rest.controller.request.LoginRequestMother;
+import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.RegisterRequest;
+import com.example.SplitLoop.auth.infrastructure.presentation.rest.controller.request.RequestMother;
+import com.example.SplitLoop.auth.infrastructure.persistence.jpa.SpringDataRefreshTokenRepository;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import com.example.SplitLoop.util.integration.BaseIntegrationTest;
-import com.example.SplitLoop.util.mother.RefreshTokenMother;
 import com.example.SplitLoop.util.mother.UserMother;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
@@ -44,7 +42,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
+    private SpringDataRefreshTokenRepository springDataRefreshTokenRepository;
 
     @Test
     @DisplayName("Register: Debe crear usuario y retornar tokens")
@@ -65,7 +63,12 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
     void debeHacerLoginCorrectamente() throws Exception {
         // GIVEN: Creamos el objeto en memoria con el Mother y lo guardamos en la BD real
         LoginRequest loginReq = LoginRequestMother.valid();
-        userRepository.save(UserMother.withCredentials(loginReq.email(), passwordEncoder.encode(loginReq.password())));
+        UserEntity newUser = UserMother.withCredentialsEntity(loginReq.email(), passwordEncoder.encode(loginReq.password()))
+                .toBuilder()
+                .id(null) // <--- Forzamos id a null para que sea un INSERT
+                .build();
+
+        userRepository.save(userRepository.save(newUser));
 
         // WHEN / THEN
         mockMvc.perform(post("/auth/login")
@@ -110,7 +113,7 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
         String refreshTokenValue = extractCookieValue(setCookieHeader, "refreshToken");
 
         // Verificamos que el RefreshToken se guardó correctamente en BD
-        assertThat(refreshTokenRepository.findByToken(refreshTokenValue)).isPresent();
+        assertThat(springDataRefreshTokenRepository.findByToken(refreshTokenValue)).isPresent();
 
         // 3. REFRESH TOKEN (vía Cookie)
         Cookie refreshCookie = new Cookie("refreshToken", refreshTokenValue);

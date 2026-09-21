@@ -5,7 +5,7 @@ import com.example.SplitLoop.expense.domain.entity.RecurringExpense;
 import com.example.SplitLoop.expense.domain.entity.RecurringExpenseStatus;
 import com.example.SplitLoop.expense.domain.entity.SplitType;
 import com.example.SplitLoop.group.domain.entity.Group;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,13 +18,13 @@ public final class RecurringExpenseMother {
 
     public static RecurringExpense active() {
 
-        User user = UserMother.user();
-        Group group = GroupMother.group(user);
+        UserEntity userEntity = UserMother.userEntity();
+        Group group = GroupMother.group(userEntity);
 
-        return active(group, user);
+        return active(group, userEntity);
     }
 
-    public static RecurringExpense active(Group group, User user) {
+    public static RecurringExpense active(Group group, UserEntity userEntity) {
 
         return RecurringExpense.builder()
                 .id(UUID.randomUUID())
@@ -36,8 +36,8 @@ public final class RecurringExpenseMother {
                 .splitType(SplitType.EQUAL)
                 .startDate(LocalDate.of(2025, 1, 1))
                 .endDate(null)
-                .paidBy(user)
-                .createdBy(user)
+                .paidBy(userEntity)
+                .createdBy(userEntity)
                 .status(RecurringExpenseStatus.ACTIVE)
                 .build();
     }

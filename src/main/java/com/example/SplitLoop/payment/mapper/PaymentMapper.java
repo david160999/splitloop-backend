@@ -5,7 +5,7 @@ import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
 import com.example.SplitLoop.payment.controller.command.RegisterPaymentCommand;
 import com.example.SplitLoop.payment.controller.response.PaymentResponse;
 import com.example.SplitLoop.payment.domain.entity.Payment;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -25,9 +25,9 @@ public interface PaymentMapper {
             RegisterPaymentCommand request,
             ExpenseOccurrence occurrence,
             ExpenseOccurrenceSplit split,
-            User fromUser,
-            User toUser,
-            User createdBy);
+            UserEntity fromUser,
+            UserEntity toUser,
+            UserEntity createdBy);
 
     @Mapping(target = "occurrenceId", source = "occurrence.id")
     @Mapping(target = "splitId", source = "split.id")

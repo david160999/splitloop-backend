@@ -1,5 +1,6 @@
 package com.example.SplitLoop.expense.application.command;
 
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.service.CurrentUserService;
 import com.example.SplitLoop.expense.controller.command.CreateRecurringExpenseCommand;
 import com.example.SplitLoop.expense.controller.response.RecurringExpenseResponse;
@@ -14,7 +15,6 @@ import com.example.SplitLoop.group.domain.repository.GroupMemberRepository;
 import com.example.SplitLoop.group.domain.repository.GroupRepository;
 import com.example.SplitLoop.group.exception.GroupNotFoundException;
 import com.example.SplitLoop.group.exception.UserNotFoundException;
-import com.example.SplitLoop.user.domain.entity.User;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,12 +39,12 @@ public class CreateRecurringExpenseUseCase {
     @Transactional
     public RecurringExpenseResponse execute(CreateRecurringExpenseCommand request) {
 
-        User createdBy = currentUserService.getCurrentUser();
+        UserEntity createdBy = currentUserService.getCurrentUser();
 
         Group group = groupRepository.findById(request.getGroupId())
                 .orElseThrow(() -> new GroupNotFoundException(request.getGroupId()));
 
-        User paidBy = userRepository.findById(request.getPaidById())
+        UserEntity paidBy = userRepository.findById(request.getPaidById())
                 .orElseThrow(() -> new UserNotFoundException(request.getPaidById()));
 
         List<GroupMember> members = groupMemberRepository.findAllByGroup(group);

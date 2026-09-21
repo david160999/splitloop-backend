@@ -1,5 +1,6 @@
 package com.example.SplitLoop.group.domain.service;
 
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.service.CurrentUserService;
 import com.example.SplitLoop.group.domain.entity.Group;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
@@ -9,9 +10,7 @@ import com.example.SplitLoop.group.domain.policy.MemberExitPolicy;
 import com.example.SplitLoop.group.domain.repository.GroupMemberRepository;
 import com.example.SplitLoop.group.domain.repository.GroupRepository;
 import com.example.SplitLoop.group.exception.*;
-import com.example.SplitLoop.user.domain.entity.User;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,7 +30,7 @@ public class GroupServiceImpl implements GroupService {
     private final List<GroupDeletionPolicy> groupDeletionPolicies;
 
     @Override
-    public Group createGroup(User creator, String name) {
+    public Group createGroup(UserEntity creator, String name) {
 
         Group group = Group.builder()
                 .name(name)
@@ -59,7 +58,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void deleteGroup(Group group, User requester) {
+    public void deleteGroup(Group group, UserEntity requester) {
 
         if (!group.getCreatedBy().getId().equals(requester.getId())) {
             throw new OnlyGroupCreatorCanDeleteException();
@@ -76,15 +75,15 @@ public class GroupServiceImpl implements GroupService {
 
 
     @Override
-    public GroupMember addMember(Group group, User user, MemberRole memberRole) {
+    public GroupMember addMember(Group group, UserEntity userEntity, MemberRole memberRole) {
 
-        if (isMember(group.getId(), user.getId())) {
-            throw new UserAlreadyInGroupException(user.getId(), group.getId());
+        if (isMember(group.getId(), userEntity.getId())) {
+            throw new UserAlreadyInGroupException(userEntity.getId(), group.getId());
         }
 
         GroupMember member = GroupMember.builder()
                 .group(group)
-                .user(user)
+                .user(userEntity)
                 .memberRole(memberRole)
                 .build();
 
@@ -94,7 +93,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void removeMember(Group group, User requester, User memberToRemove) {
+    public void removeMember(Group group, UserEntity requester, UserEntity memberToRemove) {
 
         GroupMember requesterMember = getMember(group, requester);
 
@@ -116,21 +115,21 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void leaveGroup(Group group, User user) {
+    public void leaveGroup(Group group, UserEntity userEntity) {
 
-        GroupMember member = getMember(group, user);
+        GroupMember member = getMember(group, userEntity);
 
         validateLastAdmin(group, member);
 
-        memberExitPolicy.validateCanExist(group, user);
+        memberExitPolicy.validateCanExist(group, userEntity);
 
         memberRepository.delete(member);
     }
 
     @Override
-    public GroupMember updateMemberRole(Group group, User requestedBy, User targetUser, MemberRole newRole) {
+    public GroupMember updateMemberRole(Group group, UserEntity requestedBy, UserEntity targetUserEntity, MemberRole newRole) {
 
-        if(isCreator(group, targetUser.getId())){
+        if(isCreator(group, targetUserEntity.getId())){
             throw new CannotChangeGroupCreatorRoleException();
         }
 
@@ -140,7 +139,7 @@ public class GroupServiceImpl implements GroupService {
             throw new InsufficientPermissionsException();
         }
 
-        GroupMember target = getMember(group, targetUser);
+        GroupMember target = getMember(group, targetUserEntity);
 
         if (target.isAdmin() && newRole != MemberRole.ADMIN) {
             validateLastAdmin(group, target);
@@ -151,11 +150,11 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public GroupMember getMember(Group group, User user) {
+    public GroupMember getMember(Group group, UserEntity userEntity) {
 
         return memberRepository
-                .findByGroupAndUser(group, user)
-                .orElseThrow(() -> new UserNotInGroupException(user.getId(), group.getId()));
+                .findByGroupAndUser(group, userEntity)
+                .orElseThrow(() -> new UserNotInGroupException(userEntity.getId(), group.getId()));
     }
 
     @Override
@@ -205,8 +204,8 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public GroupMember getCurrentMember(Group group) {
-        User currentUser = currentUserService.getCurrentUser();
+        UserEntity currentUserEntity = currentUserService.getCurrentUser();
 
-        return getMember(group, currentUser);
+        return getMember(group, currentUserEntity);
     }
 }

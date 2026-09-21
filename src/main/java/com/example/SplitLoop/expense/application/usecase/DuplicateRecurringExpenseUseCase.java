@@ -11,7 +11,7 @@ import com.example.SplitLoop.expense.exception.RecurringExpenseNotFoundException
 import com.example.SplitLoop.expense.mapper.RecurringExpenseMapper;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
 import com.example.SplitLoop.group.domain.service.GroupService;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +39,7 @@ public class DuplicateRecurringExpenseUseCase {
         RecurringExpense original = recurringExpenseRepository.findById(recurringExpenseId)
                 .orElseThrow(() -> new RecurringExpenseNotFoundException(recurringExpenseId));
 
-        User currentUser = currentUserService.getCurrentUser();
+        UserEntity currentUserEntity = currentUserService.getCurrentUser();
 
         List<GroupMember> members = groupService.getMembers(original.getGroup());
 
@@ -49,7 +49,7 @@ public class DuplicateRecurringExpenseUseCase {
                 recurringExpenseService.duplicateRecurringExpense(
                         original,
                         participants,
-                        currentUser,
+                        currentUserEntity,
                         original.getStartDate(),
                         members);
 

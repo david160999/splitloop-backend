@@ -6,7 +6,7 @@ import com.example.SplitLoop.group.domain.entity.Group;
 import com.example.SplitLoop.group.domain.service.GroupService;
 import com.example.SplitLoop.group.exception.UserNotFoundException;
 import com.example.SplitLoop.group.mapper.GroupMapper;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class CreateGroupUseCase {
     @Transactional
     public GroupResponse execute(CreateGroupRequest request) {
 
-        User creator = userRepository.findById(request.getCreatedBy())
+        UserEntity creator = userRepository.findById(request.getCreatedBy())
                 .orElseThrow(() -> new UserNotFoundException(request.getCreatedBy()));
 
         Group group = groupService.createGroup(creator, request.getName());

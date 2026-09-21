@@ -1,7 +1,7 @@
 package com.example.SplitLoop.user.domain.service;
 
 import com.example.SplitLoop.group.exception.UserNotFoundException;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -28,7 +28,7 @@ public class CurrentUserService {
         }
 
         // Hacemos el cast directo a tu entidad User 👤
-        User principal = (User) authentication.getPrincipal();
+        UserEntity principal = (UserEntity) authentication.getPrincipal();
 
 
         assert principal != null;
@@ -39,7 +39,7 @@ public class CurrentUserService {
      * Obtiene la entidad completa del usuario directamente de la Base de Datos.
      * Útil si necesitas actualizar sus datos o validar relaciones mapeadas.
      */
-    public User getCurrentUser() {
+    public UserEntity getCurrentUser() {
         UUID userId = getCurrentUserId();
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));

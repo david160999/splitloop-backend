@@ -3,7 +3,7 @@ package com.example.SplitLoop.util.TestData;
 import com.example.SplitLoop.expense.domain.entity.*;
 import com.example.SplitLoop.group.domain.entity.Group;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.util.mother.*;
 
 import java.util.List;
@@ -15,9 +15,9 @@ public final class ExpenseFixture {
 
     public static ExpenseContext defaultContext() {
 
-        User owner = UserMother.user();
+        UserEntity owner = UserMother.userEntity();
 
-        User member = UserMother.anotherUser();
+        UserEntity member = UserMother.anotherUserEntity();
 
         Group group = GroupMother.group(owner);
 
@@ -39,7 +39,7 @@ public final class ExpenseFixture {
 
         return ExpenseContext.builder()
                 .owner(owner)
-                .secondUser(member)
+                .secondUserEntity(member)
                 .group(group)
                 .admin(admin)
                 .member(groupMember)

@@ -15,7 +15,7 @@ import com.example.SplitLoop.expense.domain.repository.ExpenseOccurrenceReposito
 import com.example.SplitLoop.expense.domain.validator.ExpenseValidator;
 import com.example.SplitLoop.group.domain.entity.Group;
 import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import com.example.SplitLoop.util.mother.ExpenseOccurrenceMother;
 import com.example.SplitLoop.util.mother.UserMother;
 import com.example.SplitLoop.util.TestData.ExpenseContext;
@@ -41,7 +41,7 @@ class ExpenseOccurrenceServiceImplTest {
     @InjectMocks
     private ExpenseOccurrenceServiceImpl service;
 
-    private User user;
+    private UserEntity userEntity;
     private Group group;
     private GroupMember member;
     private RecurringExpense recurringExpense;
@@ -53,7 +53,7 @@ class ExpenseOccurrenceServiceImplTest {
     void setUp() {
         context = ExpenseFixture.defaultContext();
 
-        user = context.getOwner();
+        userEntity = context.getOwner();
         group = context.getGroup();
         member = context.getAdmin();
         recurringExpense = context.getRecurringExpense();
@@ -172,15 +172,15 @@ class ExpenseOccurrenceServiceImplTest {
     @Test
     void shouldChangePaidBy() {
 
-        User newUser = UserMother.anotherUser();
+        UserEntity newUserEntity = UserMother.anotherUserEntity();
 
         when(occurrenceRepository.save(occurrence)).thenReturn(occurrence);
 
-        ExpenseOccurrence result =service.changePaidBy(occurrence,newUser,member);
+        ExpenseOccurrence result =service.changePaidBy(occurrence, newUserEntity,member);
 
-        verify(validator).validateCanChangePaidBy(occurrence,newUser,member);
+        verify(validator).validateCanChangePaidBy(occurrence, newUserEntity,member);
 
-        assertEquals(newUser, occurrence.getPaidBy());
+        assertEquals(newUserEntity, occurrence.getPaidBy());
 
         verify(occurrenceRepository).save(occurrence);
         verify(splitService).recalculateParticipants(occurrence);
@@ -191,20 +191,20 @@ class ExpenseOccurrenceServiceImplTest {
     @Test
     void shouldThrowExceptionWhenChangePaidByValidationFails() {
 
-        User newUser = UserMother.anotherUser();
+        UserEntity newUserEntity = UserMother.anotherUserEntity();
 
         doThrow(new IllegalArgumentException())
                 .when(validator)
                 .validateCanChangePaidBy(
                         occurrence,
-                        newUser,
+                        newUserEntity,
                         member);
 
         assertThrows(
                 IllegalArgumentException.class,
                 () -> service.changePaidBy(
                         occurrence,
-                        newUser,
+                        newUserEntity,
                         member));
 
         verify(occurrenceRepository, never()).save(any());
@@ -225,7 +225,7 @@ class ExpenseOccurrenceServiceImplTest {
         recurringExpense.setName("Spotify");
         recurringExpense.setAmount(BigDecimal.valueOf(35));
 
-        User newPaidBy = UserMother.anotherUser();
+        UserEntity newPaidBy = UserMother.anotherUserEntity();
         recurringExpense.setPaidBy(newPaidBy);
 
         when(occurrenceRepository.findFutureOccurrences(

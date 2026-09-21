@@ -1,7 +1,7 @@
 package com.example.SplitLoop.payment.domain.entity;
 
 import com.example.SplitLoop.group.domain.entity.Group;
-import com.example.SplitLoop.user.domain.entity.User;
+import com.example.SplitLoop.user.domain.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,11 +26,11 @@ public class PaymentObligation {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "debtor_id", nullable = false)
-    private User debtor;
+    private UserEntity debtor;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "creditor_id", nullable = false)
-    private User creditor;
+    private UserEntity creditor;
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
