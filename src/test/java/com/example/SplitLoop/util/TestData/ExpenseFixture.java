@@ -1,9 +1,12 @@
 package com.example.SplitLoop.util.TestData;
 
-import com.example.SplitLoop.expense.domain.entity.*;
-import com.example.SplitLoop.group.domain.entity.Group;
-import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceSplitEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.RecurringExpenseEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.RecurringExpenseParticipantEntity;
+import com.example.SplitLoop.group.infrastructure.persistence.entity.GroupEntity;
+import com.example.SplitLoop.group.infrastructure.persistence.entity.GroupMemberEntity;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 import com.example.SplitLoop.util.mother.*;
 
 import java.util.List;
@@ -19,31 +22,31 @@ public final class ExpenseFixture {
 
         UserEntity member = UserMother.anotherUserEntity();
 
-        Group group = GroupMother.group(owner);
+        GroupEntity groupEntity = GroupMother.group(owner);
 
-        GroupMember admin = GroupMemberMother.admin(group, owner);
+        GroupMemberEntity admin = GroupMemberMother.admin(groupEntity, owner);
 
-        GroupMember groupMember = GroupMemberMother.member(group, member);
+        GroupMemberEntity groupMemberEntity = GroupMemberMother.member(groupEntity, member);
 
-        RecurringExpense recurringExpense = RecurringExpenseMother.active(group, owner);
+        RecurringExpenseEntity recurringExpenseEntity = RecurringExpenseMother.active(groupEntity, owner);
 
-        ExpenseOccurrence occurrence = ExpenseOccurrenceMother.pending(recurringExpense);
+        ExpenseOccurrenceEntity occurrence = ExpenseOccurrenceMother.pending(recurringExpenseEntity);
 
-        RecurringExpenseParticipant participant1 = RecurringExpenseParticipantMother.participant(recurringExpense, owner);
+        RecurringExpenseParticipantEntity participant1 = RecurringExpenseParticipantMother.participant(recurringExpenseEntity, owner);
 
-        RecurringExpenseParticipant participant2 = RecurringExpenseParticipantMother.participant(recurringExpense, member);
+        RecurringExpenseParticipantEntity participant2 = RecurringExpenseParticipantMother.participant(recurringExpenseEntity, member);
 
-        ExpenseOccurrenceSplit split1 = ExpenseOccurrenceSplitMother.pending(occurrence, owner);
+        ExpenseOccurrenceSplitEntity split1 = ExpenseOccurrenceSplitMother.pending(occurrence, owner);
 
-        ExpenseOccurrenceSplit split2 = ExpenseOccurrenceSplitMother.pending(occurrence, member);
+        ExpenseOccurrenceSplitEntity split2 = ExpenseOccurrenceSplitMother.pending(occurrence, member);
 
         return ExpenseContext.builder()
                 .owner(owner)
                 .secondUserEntity(member)
-                .group(group)
+                .groupEntity(groupEntity)
                 .admin(admin)
-                .member(groupMember)
-                .recurringExpense(recurringExpense)
+                .member(groupMemberEntity)
+                .recurringExpenseEntity(recurringExpenseEntity)
                 .participants(List.of(participant1, participant2))
                 .occurrence(occurrence)
                 .splits(List.of(split1, split2))

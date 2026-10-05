@@ -1,14 +1,14 @@
 package com.example.SplitLoop.payment.domain.validator;
 
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceStatus;
-import com.example.SplitLoop.expense.exception.OccurrenceAlreadyCancelledException;
-import com.example.SplitLoop.expense.exception.SamePaidByException;
-import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.group.exception.InsufficientPermissionsException;
-import com.example.SplitLoop.payment.domain.entity.Payment;
-import com.example.SplitLoop.payment.exception.PaymentExceedsDebtException;
-import com.example.SplitLoop.payment.exception.RefundExceedsPaymentException;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceSplitEntity;
+import com.example.SplitLoop.expense.domain.model.ExpenseOccurrenceStatus;
+import com.example.SplitLoop.expense.domain.exception.OccurrenceAlreadyCancelledException;
+import com.example.SplitLoop.expense.domain.exception.SamePaidByException;
+import com.example.SplitLoop.group.infrastructure.persistence.entity.GroupMemberEntity;
+import com.example.SplitLoop.group.domain.exception.InsufficientPermissionsException;
+import com.example.SplitLoop.payment.infrastructure.persistence.entity.PaymentEntity;
+import com.example.SplitLoop.payment.domain.exception.PaymentExceedsDebtException;
+import com.example.SplitLoop.payment.domain.exception.RefundExceedsPaymentException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,48 +17,48 @@ import java.math.BigDecimal;
 public class PaymentValidatorImpl implements PaymentValidator {
 
     @Override
-    public void validatePayment(Payment payment) {
+    public void validatePayment(PaymentEntity paymentEntity) {
 
-        validateAmount(payment.getAmount());
+        validateAmount(paymentEntity.getAmount());
 
-        if (payment.getOccurrence() == null) {
+        if (paymentEntity.getOccurrence() == null) {
             throw new IllegalArgumentException("Occurrence is required.");
         }
 
-        if (payment.getSplit() == null) {
+        if (paymentEntity.getSplit() == null) {
             throw new IllegalArgumentException("Split is required.");
         }
 
-        if (payment.getFromUser() == null) {
+        if (paymentEntity.getFromUser() == null) {
             throw new IllegalArgumentException("From user is required.");
         }
 
-        if (payment.getToUser() == null) {
+        if (paymentEntity.getToUser() == null) {
             throw new IllegalArgumentException("To user is required.");
         }
 
-        if (payment.getCreatedBy() == null) {
+        if (paymentEntity.getCreatedBy() == null) {
             throw new IllegalArgumentException("Created by is required.");
         }
 
-        if (payment.getFromUser().equals(payment.getToUser())) {
+        if (paymentEntity.getFromUser().equals(paymentEntity.getToUser())) {
             throw new SamePaidByException();
         }
     }
 
 
     @Override
-    public void validateCanUpdate(Payment payment, BigDecimal newAmount) {
+    public void validateCanUpdate(PaymentEntity paymentEntity, BigDecimal newAmount) {
 
         validateAmount(newAmount);
 
-        validateOccurrenceOpen(payment);
+        validateOccurrenceOpen(paymentEntity);
 
         BigDecimal remaining =
-                payment.getSplit()
+                paymentEntity.getSplit()
                         .getAmountOwed()
-                        .subtract(payment.getSplit().getAmountPaid())
-                        .add(payment.getAmount());
+                        .subtract(paymentEntity.getSplit().getAmountPaid())
+                        .add(paymentEntity.getAmount());
 
         if (newAmount.compareTo(remaining) > 0) {
             throw new PaymentExceedsDebtException();
@@ -67,73 +67,73 @@ public class PaymentValidatorImpl implements PaymentValidator {
 
     @Override
     public void validateCanRefund(
-            Payment payment,
+            PaymentEntity paymentEntity,
             BigDecimal refundAmount) {
 
         validateAmount(refundAmount);
 
-        if (refundAmount.compareTo(payment.getAmount()) > 0) {
+        if (refundAmount.compareTo(paymentEntity.getAmount()) > 0) {
             throw new RefundExceedsPaymentException();
         }
     }
 
     @Override
-    public void validateCanRegister(Payment payment, GroupMember member) {
+    public void validateCanRegister(PaymentEntity paymentEntity, GroupMemberEntity member) {
 
         validateGroupMember(member);
 
-        validatePayment(payment);
+        validatePayment(paymentEntity);
 
-        validateOccurrenceOpen(payment);
+        validateOccurrenceOpen(paymentEntity);
 
-        validateSplitMatches(payment);
+        validateSplitMatches(paymentEntity);
 
         validateRemainingDebt(
-                payment.getSplit(),
-                payment.getAmount());
+                paymentEntity.getSplit(),
+                paymentEntity.getAmount());
     }
 
-    private void validateGroupMember(GroupMember member) {
+    private void validateGroupMember(GroupMemberEntity member) {
 
         if (member == null) {
             throw new InsufficientPermissionsException();
         }
     }
 
-    private void validateOccurrenceOpen(Payment payment) {
+    private void validateOccurrenceOpen(PaymentEntity paymentEntity) {
 
-        if (payment.getOccurrence().getStatus()
+        if (paymentEntity.getOccurrence().getStatus()
                 == ExpenseOccurrenceStatus.CANCELLED) {
 
             throw new OccurrenceAlreadyCancelledException();
         }
     }
 
-    private void validateSplitMatches(Payment payment) {
+    private void validateSplitMatches(PaymentEntity paymentEntity) {
 
-        if (!payment.getSplit().getOccurrence()
-                .equals(payment.getOccurrence())) {
+        if (!paymentEntity.getSplit().getOccurrence()
+                .equals(paymentEntity.getOccurrence())) {
 
             throw new IllegalArgumentException(
                     "Split does not belong to occurrence.");
         }
 
-        if (!payment.getSplit().getUser()
-                .equals(payment.getFromUser())) {
+        if (!paymentEntity.getSplit().getUser()
+                .equals(paymentEntity.getFromUser())) {
 
             throw new IllegalArgumentException(
                     "Invalid payer.");
         }
 
-        if (!payment.getOccurrence().getPaidBy()
-                .equals(payment.getToUser())) {
+        if (!paymentEntity.getOccurrence().getPaidBy()
+                .equals(paymentEntity.getToUser())) {
 
             throw new SamePaidByException();
         }
     }
 
     private void validateRemainingDebt(
-            ExpenseOccurrenceSplit split,
+            ExpenseOccurrenceSplitEntity split,
             BigDecimal amount) {
 
         BigDecimal remaining = split.getAmountOwed()

@@ -1,35 +1,31 @@
 package com.example.SplitLoop.payment.domain.repository;
 
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
-import com.example.SplitLoop.payment.domain.entity.Payment;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.example.SplitLoop.payment.domain.model.Payment;
+import com.example.SplitLoop.payment.domain.model.PaymentCriteria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public interface PaymentRepository extends JpaRepository<Payment, UUID>, JpaSpecificationExecutor<Payment> {
+public interface PaymentRepository {
 
-    Page<Payment> findByOccurrence(ExpenseOccurrence occurrence, Pageable pageable);
+    Payment save(Payment payment);
 
-    List<Payment> findBySplit(ExpenseOccurrenceSplit split);
+    Optional<Payment> findById(UUID id);
 
-    List<Payment> findByFromUser(UserEntity fromUserEntity);
+    Page<Payment> findByOccurrenceId(UUID occurrenceId, Pageable pageable);
 
-    List<Payment> findByToUser(UserEntity toUserEntity);
+    List<Payment> findBySplitId(UUID splitId);
 
-    Page<Payment> findByFromUserOrToUser(UserEntity fromUserEntity, UserEntity toUserEntity, Pageable pageable);
+    List<Payment> findByFromUserId(UUID fromUserId);
 
-    @Query("""
-            select coalesce(sum(p.amount), 0)
-            from Payment p
-            where p.split = :split
-            """)
-    BigDecimal sumAmountBySplit(@Param("split") ExpenseOccurrenceSplit split);
+    List<Payment> findByToUserId(UUID toUserId);
+
+    Page<Payment> findByFromUserIdOrToUserId(UUID fromUserId, UUID toUserId, Pageable pageable);
+
+    BigDecimal sumAmountBySplitId(UUID splitId);
+
+    Page<Payment> findAll(PaymentCriteria criteria, Pageable pageable);
 }

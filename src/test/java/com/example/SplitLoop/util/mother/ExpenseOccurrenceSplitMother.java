@@ -1,10 +1,10 @@
 package com.example.SplitLoop.util.mother;
 
 
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplitStatus;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceSplitEntity;
+import com.example.SplitLoop.expense.domain.model.ExpenseOccurrenceSplitStatus;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -14,19 +14,19 @@ public final class ExpenseOccurrenceSplitMother {
     private ExpenseOccurrenceSplitMother() {
     }
 
-    public static ExpenseOccurrenceSplit pending() {
+    public static ExpenseOccurrenceSplitEntity pending() {
 
         UserEntity userEntity = UserMother.userEntity();
-        ExpenseOccurrence occurrence = ExpenseOccurrenceMother.pending();
+        ExpenseOccurrenceEntity occurrence = ExpenseOccurrenceMother.pending();
 
         return pending(occurrence, userEntity);
     }
 
-    public static ExpenseOccurrenceSplit pending(
-            ExpenseOccurrence occurrence,
+    public static ExpenseOccurrenceSplitEntity pending(
+            ExpenseOccurrenceEntity occurrence,
             UserEntity userEntity) {
 
-        return ExpenseOccurrenceSplit.builder()
+        return ExpenseOccurrenceSplitEntity.builder()
                 .id(UUID.randomUUID())
                 .occurrence(occurrence)
                 .user(userEntity)
@@ -36,7 +36,7 @@ public final class ExpenseOccurrenceSplitMother {
                 .build();
     }
 
-    public static ExpenseOccurrenceSplit partiallyPaid() {
+    public static ExpenseOccurrenceSplitEntity partiallyPaid() {
 
         return pending()
                 .toBuilder()
@@ -45,7 +45,7 @@ public final class ExpenseOccurrenceSplitMother {
                 .build();
     }
 
-    public static ExpenseOccurrenceSplit paid() {
+    public static ExpenseOccurrenceSplitEntity paid() {
 
         return pending()
                 .toBuilder()

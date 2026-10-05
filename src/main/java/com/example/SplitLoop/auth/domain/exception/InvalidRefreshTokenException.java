@@ -1,7 +1,7 @@
 package com.example.SplitLoop.auth.domain.exception;
 
-import com.example.SplitLoop.common.exception.BusinessException;
-import com.example.SplitLoop.common.exception.ErrorCode;
+import com.example.SplitLoop.common.domain.exception.BusinessException;
+import com.example.SplitLoop.common.domain.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 public class InvalidRefreshTokenException extends BusinessException {

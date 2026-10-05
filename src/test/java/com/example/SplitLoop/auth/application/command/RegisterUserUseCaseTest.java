@@ -1,13 +1,11 @@
 package com.example.SplitLoop.auth.application.command;
 
-import com.example.SplitLoop.auth.infrastructure.persistence.entity.RefreshTokenEntity;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.RegisterRequest;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.response.AuthResponse;
 import com.example.SplitLoop.auth.domain.model.RefreshToken;
-import com.example.SplitLoop.auth.domain.service.JwtService;
+import com.example.SplitLoop.auth.application.dto.request.RegisterRequest;
+import com.example.SplitLoop.auth.application.dto.response.AuthResponse;
 import com.example.SplitLoop.auth.domain.service.RefreshTokenService;
-import com.example.SplitLoop.group.exception.EmailAlreadyExistsException;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.auth.infrastructure.security.JwtTokenAdapter;
+import com.example.SplitLoop.group.domain.exception.EmailAlreadyExistsException;
 import com.example.SplitLoop.user.domain.model.User;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import com.example.SplitLoop.util.mother.RefreshTokenMother;
@@ -33,7 +31,7 @@ class RegisterUserUseCaseTest {
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
-    private JwtService jwtService;
+    private JwtTokenAdapter jwtService;
     @Mock
     private RefreshTokenService refreshTokenService;
 
@@ -44,21 +42,21 @@ class RegisterUserUseCaseTest {
     @DisplayName("Debe registrar al usuario y devolver AuthResponse cuando el email no existe")
     void debeRegistrarUsuarioExitosamente() {
         RegisterRequest request = new RegisterRequest("john", "john@test.com", "password123");
-        UserEntity userGuardado = UserMother.userEntity();
-        RefreshTokenEntity refreshTokenModel = RefreshTokenMother.refreshTokenEntityForUser(userGuardado);
+        User userGuardado = UserMother.userModel();
+        RefreshToken refreshTokenModel = RefreshTokenMother.refreshTokenModelForUser(userGuardado);
 
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn("encoded_password");
-        when(userRepository.save(any(UserEntity.class))).thenReturn(userGuardado);
-        when(jwtService.generateAccessToken(any(UserEntity.class))).thenReturn("access-token-jwt");
-        when(refreshTokenService.createRefreshToken(any(UserEntity.class))).thenReturn(refreshTokenModel);
+        when(userRepository.save(any(User.class))).thenReturn(userGuardado);
+        when(jwtService.generateAccessToken(any(User.class))).thenReturn("access-token-jwt");
+        when(refreshTokenService.createRefreshToken(any(User.class))).thenReturn(refreshTokenModel);
 
         AuthResponse response = registerUserUseCase.execute(request);
 
         assertThat(response).isNotNull();
         assertThat(response.accessToken()).isEqualTo("access-token-jwt");
-        assertThat(response.refreshToken()).isEqualTo(refreshTokenModel.getToken());
-        verify(userRepository).save(any(UserEntity.class));
+        assertThat(response.refreshToken()).isEqualTo(refreshTokenModel.token());
+        verify(userRepository).save(any(User.class));
     }
 
     @Test

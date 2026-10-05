@@ -2,7 +2,7 @@ package com.example.SplitLoop.util.mother;
 
 import com.example.SplitLoop.auth.domain.model.RefreshToken;
 import com.example.SplitLoop.auth.infrastructure.persistence.entity.RefreshTokenEntity;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 import com.example.SplitLoop.user.domain.model.User;
 
 import java.time.Instant;
@@ -35,9 +35,10 @@ public final class RefreshTokenMother {
     }
 
     public static RefreshToken expiredRefreshTokenModel() {
-        RefreshToken token = refreshTokenModel();
-        token.setExpiryDate(Instant.now().minus(1, ChronoUnit.HOURS));
-        return token;
+        return refreshTokenModel()
+                .toBuilder()
+                .expiryDate(Instant.now().minus(1, ChronoUnit.HOURS))
+                .build();
     }
 
     // =========================================================================
@@ -52,11 +53,11 @@ public final class RefreshTokenMother {
         RefreshToken domain = refreshTokenModelForUser(UserMother.userModel());
 
         RefreshTokenEntity entity = new RefreshTokenEntity();
-        entity.setId(domain.getId());
+        entity.setId(domain.id());
         entity.setUser(userEntity);
-        entity.setToken(domain.getToken());
-        entity.setRevoked(domain.isRevoked());
-        entity.setExpiryDate(domain.getExpiryDate());
+        entity.setToken(domain.token());
+        entity.setRevoked(domain.revoked());
+        entity.setExpiryDate(domain.expiryDate());
         return entity;
     }
 

@@ -1,8 +1,8 @@
 package com.example.SplitLoop.util.mother;
 
-import com.example.SplitLoop.expense.domain.entity.RecurringExpense;
-import com.example.SplitLoop.expense.domain.entity.RecurringExpenseParticipant;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.RecurringExpenseEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.RecurringExpenseParticipantEntity;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -12,41 +12,41 @@ public final class RecurringExpenseParticipantMother {
     private RecurringExpenseParticipantMother() {
     }
 
-    public static RecurringExpenseParticipant participant() {
+    public static RecurringExpenseParticipantEntity participant() {
 
         UserEntity userEntity = UserMother.userEntity();
-        RecurringExpense recurringExpense = RecurringExpenseMother.active();
+        RecurringExpenseEntity recurringExpenseEntity = RecurringExpenseMother.active();
 
-        return participant(recurringExpense, userEntity);
+        return participant(recurringExpenseEntity, userEntity);
     }
 
-    public static RecurringExpenseParticipant participant(RecurringExpense recurringExpense, UserEntity userEntity) {
+    public static RecurringExpenseParticipantEntity participant(RecurringExpenseEntity recurringExpenseEntity, UserEntity userEntity) {
 
-        return RecurringExpenseParticipant.builder()
+        return RecurringExpenseParticipantEntity.builder()
                 .id(UUID.randomUUID())
-                .recurringExpense(recurringExpense)
+                .recurringExpense(recurringExpenseEntity)
                 .user(userEntity)
                 .value(null)
                 .build();
     }
 
-    public static RecurringExpenseParticipant percentage(
-            RecurringExpense recurringExpense,
+    public static RecurringExpenseParticipantEntity percentage(
+            RecurringExpenseEntity recurringExpenseEntity,
             UserEntity userEntity,
             BigDecimal percentage) {
 
-        return participant(recurringExpense, userEntity)
+        return participant(recurringExpenseEntity, userEntity)
                 .toBuilder()
                 .value(percentage)
                 .build();
     }
 
-    public static RecurringExpenseParticipant fixed(
-            RecurringExpense recurringExpense,
+    public static RecurringExpenseParticipantEntity fixed(
+            RecurringExpenseEntity recurringExpenseEntity,
             UserEntity userEntity,
             BigDecimal amount) {
 
-        return participant(recurringExpense, userEntity)
+        return participant(recurringExpenseEntity, userEntity)
                 .toBuilder()
                 .value(amount)
                 .build();

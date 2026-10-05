@@ -1,12 +1,12 @@
 package com.example.SplitLoop.util.TestData;
 
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
-import com.example.SplitLoop.expense.domain.entity.RecurringExpense;
-import com.example.SplitLoop.expense.domain.entity.RecurringExpenseParticipant;
-import com.example.SplitLoop.group.domain.entity.Group;
-import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceSplitEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.RecurringExpenseEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.RecurringExpenseParticipantEntity;
+import com.example.SplitLoop.group.infrastructure.persistence.entity.GroupEntity;
+import com.example.SplitLoop.group.infrastructure.persistence.entity.GroupMemberEntity;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -21,21 +21,21 @@ public class ExpenseContext {
     private UserEntity secondUserEntity;
 
     // Group
-    private Group group;
+    private GroupEntity groupEntity;
 
     // Members
-    private GroupMember admin;
-    private GroupMember member;
+    private GroupMemberEntity admin;
+    private GroupMemberEntity member;
 
     // Expense
-    private RecurringExpense recurringExpense;
+    private RecurringExpenseEntity recurringExpenseEntity;
 
     // Participants
-    private List<RecurringExpenseParticipant> participants;
+    private List<RecurringExpenseParticipantEntity> participants;
 
     // Generated occurrence
-    private ExpenseOccurrence occurrence;
+    private ExpenseOccurrenceEntity occurrence;
 
     // Splits
-    private List<ExpenseOccurrenceSplit> splits;
+    private List<ExpenseOccurrenceSplitEntity> splits;
 }

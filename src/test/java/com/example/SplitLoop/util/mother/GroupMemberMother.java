@@ -1,9 +1,9 @@
 package com.example.SplitLoop.util.mother;
 
-import com.example.SplitLoop.group.domain.entity.Group;
-import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.group.domain.entity.MemberRole;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.group.infrastructure.persistence.entity.GroupEntity;
+import com.example.SplitLoop.group.infrastructure.persistence.entity.GroupMemberEntity;
+import com.example.SplitLoop.group.domain.model.MemberRole;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 
 import java.util.UUID;
 
@@ -12,37 +12,37 @@ public final class GroupMemberMother {
     private GroupMemberMother() {
     }
 
-    public static GroupMember admin() {
+    public static GroupMemberEntity admin() {
 
         UserEntity userEntity = UserMother.userEntity();
-        Group group = GroupMother.group(userEntity);
+        GroupEntity groupEntity = GroupMother.group(userEntity);
 
-        return admin(group, userEntity);
+        return admin(groupEntity, userEntity);
     }
 
-    public static GroupMember admin(Group group, UserEntity userEntity) {
+    public static GroupMemberEntity admin(GroupEntity groupEntity, UserEntity userEntity) {
 
-        return GroupMember.builder()
+        return GroupMemberEntity.builder()
                 .id(UUID.randomUUID())
-                .group(group)
+                .group(groupEntity)
                 .user(userEntity)
                 .memberRole(MemberRole.ADMIN)
                 .build();
     }
 
-    public static GroupMember member() {
+    public static GroupMemberEntity member() {
 
         UserEntity userEntity = UserMother.userEntity();
-        Group group = GroupMother.group(userEntity);
+        GroupEntity groupEntity = GroupMother.group(userEntity);
 
-        return member(group, userEntity);
+        return member(groupEntity, userEntity);
     }
 
-    public static GroupMember member(Group group, UserEntity userEntity) {
+    public static GroupMemberEntity member(GroupEntity groupEntity, UserEntity userEntity) {
 
-        return GroupMember.builder()
+        return GroupMemberEntity.builder()
                 .id(UUID.randomUUID())
-                .group(group)
+                .group(groupEntity)
                 .user(userEntity)
                 .memberRole(MemberRole.MEMBER)
                 .build();

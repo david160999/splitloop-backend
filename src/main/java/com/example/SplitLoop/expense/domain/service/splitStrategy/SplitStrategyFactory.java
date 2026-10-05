@@ -1,6 +1,6 @@
 package com.example.SplitLoop.expense.domain.service.splitStrategy;
 
-import com.example.SplitLoop.expense.domain.entity.SplitType;
+import com.example.SplitLoop.expense.domain.model.SplitType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

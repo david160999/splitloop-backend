@@ -1,6 +1,5 @@
 package com.example.SplitLoop.auth.infrastructure.security;
 
-import com.example.SplitLoop.common.config.JwtAuthenticationFilter;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,25 +1,16 @@
 package com.example.SplitLoop.user.domain.repository;
 
-import com.example.SplitLoop.user.domain.entity.UserEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.example.SplitLoop.user.domain.model.User;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<UserEntity, UUID> {
-    Optional<UserEntity> findByEmail(String email);
-
-    @Query("""
-    SELECT u
-    FROM UserEntity u
-    WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%'))
-    """)
-    List<UserEntity> searchByUsername(@Param("query") String query);
-
-    Optional<UserEntity> findByUsername(String username);
-
+public interface UserRepository {
+    User save(User user);
+    Optional<User> findById(UUID id);
+    Optional<User> findByEmail(String email);
+    Optional<User> findByUsername(String username);
+    List<User> searchByUsername(String query);
     boolean existsByEmail(String email);
 }

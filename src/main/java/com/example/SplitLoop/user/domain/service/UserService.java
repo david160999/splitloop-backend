@@ -1,24 +1,36 @@
 package com.example.SplitLoop.user.domain.service;
 
-import com.example.SplitLoop.user.controller.response.UserResponse;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.group.domain.exception.EmailAlreadyExistsException;
+import com.example.SplitLoop.user.domain.exception.InvalidPasswordException;
+import com.example.SplitLoop.user.domain.exception.SamePasswordException;
+import com.example.SplitLoop.user.domain.model.User;
+import com.example.SplitLoop.user.domain.port.PasswordEncoderPort;
+import com.example.SplitLoop.user.domain.repository.UserRepository;
 
-import java.util.List;
-import java.util.UUID;
+public class UserService {
 
-public interface UserService {
-    UserResponse getById(UUID id);
-    UserResponse getByEmail(String email);
+    private final UserRepository userRepository;
+    private final PasswordEncoderPort passwordEncoder;
 
-    void changePassword(
-            UserEntity userEntity,
-            String currentPassword,
-            String newPassword,
-            String confirmPassword);
+    public UserService(UserRepository userRepository, PasswordEncoderPort passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-    List<UserResponse> getAllUsers();
+    // Lógica reusable: Validar que un email no esté ocupado por OTRO usuario
+    public void ensureEmailIsUnique(String email, String currentEmail) {
+        if (!email.equalsIgnoreCase(currentEmail) && userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException(email);
+        }
+    }
 
-    void deleteUser(UUID id);
-
-    void updateUser(UserEntity currentUserEntity, String username, String email);
+    // Lógica reusable: Validar políticas de contraseña sobre la entidad
+    public void validatePasswordChange(User user, String currentPassword, String newPassword) {
+        if (!passwordEncoder.matches(currentPassword, user.password())) {
+            throw new InvalidPasswordException();
+        }
+        if (passwordEncoder.matches(newPassword, user.password())) {
+            throw new SamePasswordException();
+        }
+    }
 }

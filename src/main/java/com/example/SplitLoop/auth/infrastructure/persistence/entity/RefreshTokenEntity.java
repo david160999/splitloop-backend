@@ -1,6 +1,6 @@
 package com.example.SplitLoop.auth.infrastructure.persistence.entity;
 
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

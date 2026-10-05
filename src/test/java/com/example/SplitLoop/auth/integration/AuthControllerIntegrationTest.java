@@ -1,14 +1,17 @@
 package com.example.SplitLoop.auth.integration;
 
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.LoginRequest;
+import com.example.SplitLoop.auth.application.dto.request.LoginRequest;
+import com.example.SplitLoop.auth.domain.port.TokenProviderPort;
+import com.example.SplitLoop.auth.domain.service.RefreshTokenService;
+import com.example.SplitLoop.auth.infrastructure.presentation.rest.controller.AuthController;
 import com.example.SplitLoop.auth.infrastructure.presentation.rest.controller.request.LoginRequestMother;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.RegisterRequest;
+import com.example.SplitLoop.auth.application.dto.request.RegisterRequest;
 import com.example.SplitLoop.auth.infrastructure.presentation.rest.controller.request.RequestMother;
 import com.example.SplitLoop.auth.infrastructure.persistence.jpa.SpringDataRefreshTokenRepository;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.user.domain.model.User;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
-import com.example.SplitLoop.util.integration.BaseIntegrationTest;
 import com.example.SplitLoop.util.mother.UserMother;
+import com.example.SplitLoop.util.support.BaseIntegrationTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import org.hamcrest.Matchers;
@@ -21,13 +24,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class AuthControllerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
@@ -36,7 +40,16 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private TokenProviderPort tokenProviderPort;
+
+    @Autowired
+    private RefreshTokenService refreshTokenService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private JsonMapper jsonMapper;
 
     @Autowired
     private UserRepository userRepository;
@@ -63,13 +76,12 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
     void debeHacerLoginCorrectamente() throws Exception {
         // GIVEN: Creamos el objeto en memoria con el Mother y lo guardamos en la BD real
         LoginRequest loginReq = LoginRequestMother.valid();
-        UserEntity newUser = UserMother.withCredentialsEntity(loginReq.email(), passwordEncoder.encode(loginReq.password()))
+        User newUser = UserMother.withCredentialsModel(loginReq.email(), passwordEncoder.encode(loginReq.password()))
                 .toBuilder()
                 .id(null) // <--- Forzamos id a null para que sea un INSERT
                 .build();
 
-        userRepository.save(userRepository.save(newUser));
-
+        userRepository.save(newUser);
         // WHEN / THEN
         mockMvc.perform(post("/auth/login")
                         .with(csrf())

@@ -1,11 +1,11 @@
 package com.example.SplitLoop.util.mother;
 
-import com.example.SplitLoop.expense.domain.entity.Frequency;
-import com.example.SplitLoop.expense.domain.entity.RecurringExpense;
-import com.example.SplitLoop.expense.domain.entity.RecurringExpenseStatus;
-import com.example.SplitLoop.expense.domain.entity.SplitType;
-import com.example.SplitLoop.group.domain.entity.Group;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.expense.domain.model.Frequency;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.RecurringExpenseEntity;
+import com.example.SplitLoop.expense.domain.model.RecurringExpenseStatus;
+import com.example.SplitLoop.expense.domain.model.SplitType;
+import com.example.SplitLoop.group.infrastructure.persistence.entity.GroupEntity;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,19 +16,19 @@ public final class RecurringExpenseMother {
     private RecurringExpenseMother() {
     }
 
-    public static RecurringExpense active() {
+    public static RecurringExpenseEntity active() {
 
         UserEntity userEntity = UserMother.userEntity();
-        Group group = GroupMother.group(userEntity);
+        GroupEntity groupEntity = GroupMother.group(userEntity);
 
-        return active(group, userEntity);
+        return active(groupEntity, userEntity);
     }
 
-    public static RecurringExpense active(Group group, UserEntity userEntity) {
+    public static RecurringExpenseEntity active(GroupEntity groupEntity, UserEntity userEntity) {
 
-        return RecurringExpense.builder()
+        return RecurringExpenseEntity.builder()
                 .id(UUID.randomUUID())
-                .group(group)
+                .group(groupEntity)
                 .name("Netflix")
                 .description("Netflix subscription")
                 .amount(BigDecimal.TEN)
@@ -42,7 +42,7 @@ public final class RecurringExpenseMother {
                 .build();
     }
 
-    public static RecurringExpense paused() {
+    public static RecurringExpenseEntity paused() {
 
         return active()
                 .toBuilder()
@@ -50,7 +50,7 @@ public final class RecurringExpenseMother {
                 .build();
     }
 
-    public static RecurringExpense deleted() {
+    public static RecurringExpenseEntity deleted() {
 
         return active()
                 .toBuilder()

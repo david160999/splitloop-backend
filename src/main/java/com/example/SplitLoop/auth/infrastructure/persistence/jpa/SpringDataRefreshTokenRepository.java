@@ -1,7 +1,7 @@
 package com.example.SplitLoop.auth.infrastructure.persistence.jpa;
 
 import com.example.SplitLoop.auth.infrastructure.persistence.entity.RefreshTokenEntity;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

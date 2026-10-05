@@ -1,19 +1,5 @@
 package com.example.SplitLoop.auth.infrastructure.presentation.rest.exception;
 
-import com.example.SplitLoop.auth.application.exception.RefreshTokenRequiredException;
-import com.example.SplitLoop.auth.domain.exception.InvalidBearerTokenException;
-import com.example.SplitLoop.auth.domain.exception.InvalidRefreshTokenException;
-import com.example.SplitLoop.auth.domain.exception.TokenExpiredException;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.controller.AuthController;
-import com.example.SplitLoop.common.exception.ErrorResponse; // O tu DTO de respuesta genérico
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import java.time.LocalDateTime;
-import com.example.SplitLoop.common.exception.BusinessException;
-import jakarta.servlet.http.HttpServletRequest;
-
 //@RestControllerAdvice(assignableTypes = { AuthController.class })
 //public class AuthExceptionHandler {
 //

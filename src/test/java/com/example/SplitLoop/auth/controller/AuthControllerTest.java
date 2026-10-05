@@ -4,12 +4,13 @@ import com.example.SplitLoop.auth.application.command.LoginUseCase;
 import com.example.SplitLoop.auth.application.command.RefreshTokenUseCase;
 import com.example.SplitLoop.auth.application.command.RegisterUserUseCase;
 import com.example.SplitLoop.auth.infrastructure.presentation.rest.controller.AuthController;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.LoginRequest;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.RegisterRequest;
+import com.example.SplitLoop.auth.application.dto.request.LoginRequest;
+import com.example.SplitLoop.auth.application.dto.request.RegisterRequest;
 import com.example.SplitLoop.auth.infrastructure.presentation.rest.controller.request.RequestMother;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.response.AuthResponse;
-import com.example.SplitLoop.auth.domain.service.AuthService;
-import com.example.SplitLoop.auth.domain.service.JwtService;
+import com.example.SplitLoop.auth.application.dto.response.AuthResponse;
+import com.example.SplitLoop.auth.infrastructure.security.JwtTokenAdapter;
+import com.example.SplitLoop.common.application.service.CurrentUserService;
+import com.example.SplitLoop.user.infrastructure.persistence.mapper.UserPersistenceMapper;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,10 +51,13 @@ class AuthControllerTest {
     private RefreshTokenUseCase refreshTokenUseCase;
 
     @MockitoBean
-    private JwtService jwtService;
+    private JwtTokenAdapter jwtService;
 
     @MockitoBean
-    private AuthService authService;
+    private CurrentUserService authService;
+
+    @MockitoBean
+    private UserPersistenceMapper  userPersistenceMapper;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 

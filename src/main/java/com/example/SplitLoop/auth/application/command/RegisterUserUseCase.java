@@ -1,13 +1,13 @@
 package com.example.SplitLoop.auth.application.command;
 
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.RegisterRequest;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.response.AuthResponse;
-import com.example.SplitLoop.auth.infrastructure.persistence.entity.RefreshTokenEntity;
-import com.example.SplitLoop.auth.domain.service.JwtService;
+import com.example.SplitLoop.auth.application.dto.request.RegisterRequest;
+import com.example.SplitLoop.auth.application.dto.response.AuthResponse;
+import com.example.SplitLoop.auth.domain.model.RefreshToken;
+import com.example.SplitLoop.auth.domain.port.TokenProviderPort;
 import com.example.SplitLoop.auth.domain.service.RefreshTokenService;
-import com.example.SplitLoop.group.exception.EmailAlreadyExistsException;
-import com.example.SplitLoop.user.domain.entity.Role;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.group.domain.exception.EmailAlreadyExistsException;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.Role;
+import com.example.SplitLoop.user.domain.model.User;
 import com.example.SplitLoop.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +20,7 @@ public class RegisterUserUseCase {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
+    private final TokenProviderPort tokenProviderPort;
     private final RefreshTokenService refreshTokenService;
 
     @Transactional
@@ -32,19 +32,19 @@ public class RegisterUserUseCase {
         }
 
         // 2. Construir y guardar el nuevo usuario con contraseña encriptada
-        UserEntity userEntity = UserEntity.builder()
+        User user = User.builder()
                 .username(request.username())
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .role(Role.USER)
                 .build();
 
-        UserEntity savedUserEntity = userRepository.save(userEntity);
+        User savedUser = userRepository.save(user);
 
         // 3. Generar los tokens (El Refresh Token se persiste automáticamente dentro del jwtService)
-        String accessToken = jwtService.generateAccessToken(savedUserEntity);
-        RefreshTokenEntity refreshTokenEntity = refreshTokenService.createRefreshToken(savedUserEntity);
+        String accessToken = tokenProviderPort.generateAccessToken(savedUser);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(savedUser);
 
-        return new AuthResponse(accessToken, refreshTokenEntity.getToken());
+        return new AuthResponse(accessToken, refreshToken.token());
     }
 }

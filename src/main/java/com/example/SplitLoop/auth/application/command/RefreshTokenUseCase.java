@@ -1,12 +1,12 @@
 package com.example.SplitLoop.auth.application.command;
 
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.response.AuthResponse;
-import com.example.SplitLoop.auth.infrastructure.persistence.entity.RefreshTokenEntity;
-import com.example.SplitLoop.auth.domain.service.JwtService;
+import com.example.SplitLoop.auth.application.dto.response.AuthResponse;
+import com.example.SplitLoop.auth.domain.model.RefreshToken;
+import com.example.SplitLoop.auth.domain.port.TokenProviderPort;
 import com.example.SplitLoop.auth.domain.service.RefreshTokenService;
 import com.example.SplitLoop.auth.domain.exception.InvalidRefreshTokenException;
 import com.example.SplitLoop.auth.application.exception.RefreshTokenRequiredException;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RefreshTokenUseCase {
 
-    private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final TokenProviderPort tokenProviderPort;
+
 
     @Transactional
     public AuthResponse execute(String refreshTokenStr) {
@@ -26,19 +27,19 @@ public class RefreshTokenUseCase {
         }
 
         // 1. Buscar en BD
-        RefreshTokenEntity oldToken = refreshTokenService.findByToken(refreshTokenStr)
+        RefreshToken oldToken = refreshTokenService.findByToken(refreshTokenStr)
                 .orElseThrow(() -> new InvalidRefreshTokenException("Refresh Token no encontrado"));
 
         // 2. Validar expiración (Si expiró, el servicio lo elimina de la BD y lanza excepción)
         refreshTokenService.verifyExpiration(oldToken);
 
-        UserEntity userEntity = oldToken.getUser();
+        User user = oldToken.user();
 
         // 3. Generar nuevos tokens:
         // createRefreshToken(user) BORRA el viejo token del usuario y GUARDA el nuevo en un solo paso
-        String newAccessToken = jwtService.generateAccessToken(userEntity);
-        RefreshTokenEntity newRefreshTokenEntity = refreshTokenService.createRefreshToken(userEntity);
+        String newAccessToken = tokenProviderPort.generateAccessToken(user);
+        RefreshToken newRefreshTokenEntity = refreshTokenService.createRefreshToken(user);
 
-        return new AuthResponse(newAccessToken, newRefreshTokenEntity.getToken());
+        return new AuthResponse(newAccessToken, newRefreshTokenEntity.token());
     }
 }

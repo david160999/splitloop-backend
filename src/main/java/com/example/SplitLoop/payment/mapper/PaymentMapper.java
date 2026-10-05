@@ -1,11 +1,11 @@
 package com.example.SplitLoop.payment.mapper;
 
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
-import com.example.SplitLoop.payment.controller.command.RegisterPaymentCommand;
-import com.example.SplitLoop.payment.controller.response.PaymentResponse;
-import com.example.SplitLoop.payment.domain.entity.Payment;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceSplitEntity;
+import com.example.SplitLoop.payment.application.dto.request.RegisterPaymentRequest;
+import com.example.SplitLoop.payment.application.dto.response.PaymentResponse;
+import com.example.SplitLoop.payment.infrastructure.persistence.entity.PaymentEntity;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -21,10 +21,10 @@ public interface PaymentMapper {
     @Mapping(target = "paidAt", ignore = true)
     @Mapping(target = "amount", source = "request.amount")
     @Mapping(target = "type", constant = "PAYMENT")
-    Payment toEntity(
-            RegisterPaymentCommand request,
-            ExpenseOccurrence occurrence,
-            ExpenseOccurrenceSplit split,
+    PaymentEntity toEntity(
+            RegisterPaymentRequest request,
+            ExpenseOccurrenceEntity occurrence,
+            ExpenseOccurrenceSplitEntity split,
             UserEntity fromUser,
             UserEntity toUser,
             UserEntity createdBy);
@@ -34,6 +34,6 @@ public interface PaymentMapper {
     @Mapping(target = "fromUserId", source = "fromUser.id")
     @Mapping(target = "toUserId", source = "toUser.id")
     @Mapping(target = "createdBy", source = "createdBy.id")
-    PaymentResponse toResponse(Payment payment);
+    PaymentResponse toResponse(PaymentEntity paymentEntity);
 }
 

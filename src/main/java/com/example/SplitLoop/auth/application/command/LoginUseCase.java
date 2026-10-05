@@ -1,15 +1,13 @@
 package com.example.SplitLoop.auth.application.command;
 
-import com.example.SplitLoop.auth.infrastructure.persistence.entity.RefreshTokenEntity;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.LoginRequest;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.response.AuthResponse;
-import com.example.SplitLoop.auth.domain.service.JwtService;
+import com.example.SplitLoop.auth.domain.model.RefreshToken;
+import com.example.SplitLoop.auth.domain.port.AuthenticationPort;
+import com.example.SplitLoop.auth.application.dto.request.LoginRequest;
+import com.example.SplitLoop.auth.application.dto.response.AuthResponse;
+import com.example.SplitLoop.auth.domain.port.TokenProviderPort;
 import com.example.SplitLoop.auth.domain.service.RefreshTokenService;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,23 +15,20 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LoginUseCase {
 
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationPort authenticationPort;
     private final RefreshTokenService refreshTokenService;
+    private final TokenProviderPort tokenProviderPort;
 
     @Transactional
     public AuthResponse execute(LoginRequest request) {
 
-        Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.email(), request.password())
-        );
+        User auth = authenticationPort.authenticate(request.email(), request.password());
 
-        UserEntity entity = (UserEntity) auth.getPrincipal();
+        String accessToken = tokenProviderPort.generateAccessToken(auth);
 
-        String accessToken = jwtService.generateAccessToken(entity);
-        RefreshTokenEntity refreshToken = refreshTokenService.createRefreshToken(entity);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(auth);
 
-        return new AuthResponse(accessToken, refreshToken.getToken());
+        return new AuthResponse(accessToken, refreshToken.token());
 
     }
 }

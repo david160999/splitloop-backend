@@ -1,7 +1,7 @@
 package com.example.SplitLoop.auth.infrastructure.presentation.rest.controller.request;
 
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.LoginRequest;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.request.RegisterRequest;
+import com.example.SplitLoop.auth.application.dto.request.LoginRequest;
+import com.example.SplitLoop.auth.application.dto.request.RegisterRequest;
 
 public class LoginRequestMother {
 

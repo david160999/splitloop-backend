@@ -1,9 +1,13 @@
 package com.example.SplitLoop.auth.domain.service;
 
+import com.example.SplitLoop.auth.domain.model.RefreshToken;
+import com.example.SplitLoop.auth.domain.port.TokenProviderPort;
+import com.example.SplitLoop.auth.domain.repository.RefreshTokenRepository;
 import com.example.SplitLoop.auth.infrastructure.persistence.entity.RefreshTokenEntity;
 import com.example.SplitLoop.auth.infrastructure.persistence.jpa.SpringDataRefreshTokenRepository;
 import com.example.SplitLoop.auth.domain.exception.TokenExpiredException;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.user.domain.model.User;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 import com.example.SplitLoop.util.mother.RefreshTokenMother;
 import com.example.SplitLoop.util.mother.UserMother;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,76 +32,91 @@ import static org.mockito.Mockito.*;
 class RefreshTokenEntityServiceTest {
 
     @Mock
-    private SpringDataRefreshTokenRepository springDataRefreshTokenRepository;
+    private TokenProviderPort tokenProviderPort;
+    @Mock
+    private RefreshTokenRepository repository;
 
-    @InjectMocks
     private RefreshTokenService refreshTokenService;
 
     private final long testRefreshExpiration = 604800000L; // 7 días en ms
 
     @BeforeEach
     void setUp() {
-        // En el setUp solo mantenemos la inyección de propiedades inmutables
-        ReflectionTestUtils.setField(refreshTokenService, "refreshExpiration", testRefreshExpiration);
+        refreshTokenService = new RefreshTokenService(
+                repository,
+                tokenProviderPort,
+                testRefreshExpiration
+        );
     }
 
     @Test
     @DisplayName("Debe eliminar tokens anteriores y crear un nuevo RefreshToken válido")
     void debeCrearRefreshToken() {
-        UserEntity usuario = UserMother.userEntity();
+        // 1. GIVEN
+        User user = UserMother.userModel();
+        String tokenSimulado = "jwt-o-uuid-de-prueba-12345";
 
-        when(springDataRefreshTokenRepository.save(any(RefreshTokenEntity.class)))
+        // Stubbing del puerto para devolver un valor simulado
+        when(tokenProviderPort.generateToken()).thenReturn(tokenSimulado);
+
+        // Stubbing del repositorio para devolver exactamente lo que recibe
+        when(repository.save(any(RefreshToken.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        RefreshTokenEntity tokenCreado = refreshTokenService.createRefreshToken(usuario);
+        // 2. WHEN
+        RefreshToken tokenCreado = refreshTokenService.createRefreshToken(user);
 
-        verify(springDataRefreshTokenRepository).deleteByUser(usuario);
+        // 3. THEN / VERIFICATIONS
+        // Verificamos interacciones con las dependencias
+        verify(repository).deleteByUserEmail(user.email());
+        verify(tokenProviderPort).generateToken();
 
-        ArgumentCaptor<RefreshTokenEntity> tokenCaptor = ArgumentCaptor.forClass(RefreshTokenEntity.class);
-        verify(springDataRefreshTokenRepository).save(tokenCaptor.capture());
-        RefreshTokenEntity tokenGuardado = tokenCaptor.getValue();
+        // Capturamos el objeto para validar sus atributos de forma precisa
+        ArgumentCaptor<RefreshToken> tokenCaptor = ArgumentCaptor.forClass(RefreshToken.class);
+        verify(repository).save(tokenCaptor.capture());
+        RefreshToken tokenGuardado = tokenCaptor.getValue();
 
         assertThat(tokenCreado).isNotNull();
-        assertThat(tokenGuardado.getUser()).isEqualTo(usuario);
-        assertThat(tokenGuardado.getToken()).isNotNull();
-        assertThat(UUID.fromString(tokenGuardado.getToken())).isNotNull();
-        assertThat(tokenGuardado.getExpiryDate()).isAfter(Instant.now());
+        assertThat(tokenGuardado.user()).isEqualTo(user);
+        assertThat(tokenGuardado.token()).isEqualTo(tokenSimulado); // Comprobamos que usó el token generado
+        assertThat(tokenGuardado.revoked()).isFalse();            // Es buena práctica validar también los flags
+        assertThat(tokenGuardado.expiryDate()).isAfter(Instant.now());
     }
 
     @Test
     @DisplayName("Debe retornar el token si no ha expirado")
     void debeValidarTokenNoExpirado() {
-        RefreshTokenEntity tokenValido = RefreshTokenMother.refreshTokenEntity();
+        RefreshToken tokenValido = RefreshTokenMother.refreshTokenModel();
 
-        RefreshTokenEntity resultado = refreshTokenService.verifyExpiration(tokenValido);
+        RefreshToken resultado = refreshTokenService.verifyExpiration(tokenValido);
 
         assertThat(resultado).isEqualTo(tokenValido);
-        verify(springDataRefreshTokenRepository, never()).delete(any());
+        verify(repository, never()).delete(any());
     }
 
     @Test
     @DisplayName("Debe eliminar el token y lanzar TokenExpiredException si está expirado")
     void debeEliminarYLanzarExcepcionSiTokenExpiro() {
-        RefreshTokenEntity tokenExpirado = RefreshTokenMother.expiredRefreshTokenEntity();
+        RefreshToken tokenExpirado = RefreshTokenMother.expiredRefreshTokenModel();
 
         assertThatThrownBy(() -> refreshTokenService.verifyExpiration(tokenExpirado))
                 .isInstanceOf(TokenExpiredException.class);
 
-        verify(springDataRefreshTokenRepository).delete(tokenExpirado);
+        verify(repository).delete(tokenExpirado);
     }
 
     @Test
     @DisplayName("Debe buscar un RefreshToken por su cadena de texto")
     void debeBuscarPorToken() {
-        RefreshTokenEntity tokenEsperado = RefreshTokenMother.refreshTokenEntity();
+        RefreshToken tokenEsperado = RefreshTokenMother.refreshTokenModel();
 
-        when(springDataRefreshTokenRepository.findByToken(tokenEsperado.getToken()))
+        when(repository.findByToken(tokenEsperado.token()))
                 .thenReturn(Optional.of(tokenEsperado));
 
-        Optional<RefreshTokenEntity> resultado = refreshTokenService.findByToken(tokenEsperado.getToken());
+        Optional<RefreshToken> resultado = refreshTokenService.findByToken(tokenEsperado.token());
 
         assertThat(resultado).isPresent();
-        assertThat(resultado.get().getToken()).isEqualTo(tokenEsperado.getToken());
-        verify(springDataRefreshTokenRepository).findByToken(tokenEsperado.getToken());
+        assertThat(resultado.get().token()).isEqualTo(tokenEsperado.token());
+        verify(repository).findByToken(tokenEsperado.token());
     }
 }

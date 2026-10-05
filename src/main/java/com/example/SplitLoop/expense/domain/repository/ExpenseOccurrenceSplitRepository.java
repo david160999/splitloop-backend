@@ -1,30 +1,28 @@
 package com.example.SplitLoop.expense.domain.repository;
 
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
-import com.example.SplitLoop.expense.domain.entity.RecurringExpenseParticipant;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.example.SplitLoop.expense.domain.model.ExpenseOccurrenceSplit;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public interface ExpenseOccurrenceSplitRepository extends JpaRepository<ExpenseOccurrenceSplit, UUID>, JpaSpecificationExecutor<ExpenseOccurrenceSplit> {
+public interface ExpenseOccurrenceSplitRepository {
 
-    List<ExpenseOccurrenceSplit> findByOccurrence(ExpenseOccurrence occurrence);
+    ExpenseOccurrenceSplit save(ExpenseOccurrenceSplit split);
 
-    void deleteByOccurrence(ExpenseOccurrence occurrence);
+    List<ExpenseOccurrenceSplit> saveAll(List<ExpenseOccurrenceSplit> splits);
 
-    @Query("""
-        SELECT CASE WHEN COUNT(s) > 0 THEN true ELSE false END
-        FROM ExpenseOccurrenceSplit s
-        WHERE s.user.id = :userId
-          AND s.occurrence.recurringExpense.group.id = :groupId
-          AND s.amountPaid < s.amountOwed
-    """)
-    boolean existsPendingDebt(@Param("groupId") UUID groupId, @Param("userId") UUID userId);
+    Optional<ExpenseOccurrenceSplit> findById(UUID id);
+
+    List<ExpenseOccurrenceSplit> findByOccurrenceId(UUID occurrenceId);
+
+    void deleteByOccurrenceId(UUID occurrenceId);
+
+    boolean existsPendingDebt(UUID groupId, UUID userId);
 
     List<ExpenseOccurrenceSplit> findByOccurrenceGroupId(UUID groupId);
+
+    void cancelSplitsForOccurrence(UUID occurrenceId);
+
+    List<ExpenseOccurrenceSplit> findByOccurrenceIdIn(List<UUID> occurrenceIds);
 }

@@ -1,13 +1,11 @@
 package com.example.SplitLoop.auth.application.command;
 
-import com.example.SplitLoop.auth.infrastructure.persistence.entity.RefreshTokenEntity;
-import com.example.SplitLoop.auth.infrastructure.presentation.rest.dto.response.AuthResponse;
 import com.example.SplitLoop.auth.domain.model.RefreshToken;
-import com.example.SplitLoop.auth.domain.service.JwtService;
+import com.example.SplitLoop.auth.application.dto.response.AuthResponse;
 import com.example.SplitLoop.auth.domain.service.RefreshTokenService;
 import com.example.SplitLoop.auth.domain.exception.InvalidRefreshTokenException;
 import com.example.SplitLoop.auth.application.exception.RefreshTokenRequiredException;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.auth.infrastructure.security.JwtTokenAdapter;
 import com.example.SplitLoop.user.domain.model.User;
 import com.example.SplitLoop.util.mother.RefreshTokenMother;
 import com.example.SplitLoop.util.mother.UserMother;
@@ -29,7 +27,7 @@ import static org.mockito.Mockito.when;
 class RefreshTokenUseCaseTest {
 
     @Mock
-    private JwtService jwtService;
+    private JwtTokenAdapter jwtService;
     @Mock
     private RefreshTokenService refreshTokenService;
 
@@ -39,22 +37,21 @@ class RefreshTokenUseCaseTest {
     @Test
     @DisplayName("Debe generar un nuevo AccessToken y un nuevo RefreshToken (Rotación)")
     void debeRefrescarTokenExitosamente() {
-        UserEntity usuario = UserMother.userEntity();
-        RefreshTokenEntity oldRefreshToken = RefreshTokenMother.refreshTokenEntityForUser(usuario);
-        RefreshTokenEntity newRefreshToken = RefreshTokenMother.refreshTokenEntityForUser(usuario);
-        newRefreshToken.setToken("nuevo-refresh-token-uuid");
+        User usuario = UserMother.userModel();
+        RefreshToken oldRefreshToken = RefreshTokenMother.refreshTokenModelForUser(usuario);
+        RefreshToken newRefreshToken = oldRefreshToken.toBuilder().token("nuevo-refresh-token-uuid").build();
 
-        when(refreshTokenService.findByToken(oldRefreshToken.getToken())).thenReturn(Optional.of(oldRefreshToken));
+        when(refreshTokenService.findByToken(oldRefreshToken.token())).thenReturn(Optional.of(oldRefreshToken));
         when(refreshTokenService.verifyExpiration(oldRefreshToken)).thenReturn(oldRefreshToken);
         when(jwtService.generateAccessToken(usuario)).thenReturn("new-access-token-jwt");
         when(refreshTokenService.createRefreshToken(usuario)).thenReturn(newRefreshToken);
 
-        AuthResponse response = refreshTokenUseCase.execute(oldRefreshToken.getToken());
+        AuthResponse response = refreshTokenUseCase.execute(oldRefreshToken.token());
 
         assertThat(response.accessToken()).isEqualTo("new-access-token-jwt");
         assertThat(response.refreshToken()).isEqualTo("nuevo-refresh-token-uuid");
 
-        verify(refreshTokenService).findByToken(oldRefreshToken.getToken());
+        verify(refreshTokenService).findByToken(oldRefreshToken.token());
         verify(refreshTokenService).verifyExpiration(oldRefreshToken);
         verify(refreshTokenService).createRefreshToken(usuario);
     }

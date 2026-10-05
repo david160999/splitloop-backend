@@ -1,10 +1,9 @@
 package com.example.SplitLoop.util.mother;
 
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceStatus;
-import com.example.SplitLoop.expense.domain.entity.RecurringExpense;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceEntity;
+import com.example.SplitLoop.expense.domain.model.ExpenseOccurrenceStatus;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.RecurringExpenseEntity;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -13,21 +12,21 @@ public final class ExpenseOccurrenceMother {
     private ExpenseOccurrenceMother() {
     }
 
-    public static ExpenseOccurrence pending() {
+    public static ExpenseOccurrenceEntity pending() {
 
         return pending(RecurringExpenseMother.active());
     }
 
-    public static ExpenseOccurrence pending(
-            RecurringExpense recurringExpense) {
+    public static ExpenseOccurrenceEntity pending(
+            RecurringExpenseEntity recurringExpenseEntity) {
 
-        return ExpenseOccurrence.builder()
+        return ExpenseOccurrenceEntity.builder()
                 .id(UUID.randomUUID())
-                .recurringExpense(recurringExpense)
-                .group(recurringExpense.getGroup())
-                .name(recurringExpense.getName())
-                .amount(recurringExpense.getAmount())
-                .paidBy(recurringExpense.getPaidBy())
+                .recurringExpense(recurringExpenseEntity)
+                .group(recurringExpenseEntity.getGroup())
+                .name(recurringExpenseEntity.getName())
+                .amount(recurringExpenseEntity.getAmount())
+                .paidBy(recurringExpenseEntity.getPaidBy())
                 .dueDate(LocalDate.of(2025, 1, 1))
                 .periodStart(LocalDate.of(2025, 1, 1))
                 .periodEnd(LocalDate.of(2025, 1, 31))
@@ -35,7 +34,7 @@ public final class ExpenseOccurrenceMother {
                 .build();
     }
 
-    public static ExpenseOccurrence paid() {
+    public static ExpenseOccurrenceEntity paid() {
 
         return pending()
                 .toBuilder()
@@ -43,7 +42,7 @@ public final class ExpenseOccurrenceMother {
                 .build();
     }
 
-    public static ExpenseOccurrence partiallyPaid() {
+    public static ExpenseOccurrenceEntity partiallyPaid() {
 
         return pending()
                 .toBuilder()
@@ -51,7 +50,7 @@ public final class ExpenseOccurrenceMother {
                 .build();
     }
 
-    public static ExpenseOccurrence cancelled() {
+    public static ExpenseOccurrenceEntity cancelled() {
 
         return pending()
                 .toBuilder()

@@ -1,9 +1,10 @@
 package com.example.SplitLoop.auth.infrastructure.security;
 
 import com.example.SplitLoop.auth.domain.port.AuthenticationPort;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.common.infrastructure.security.CustomUserDetails;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 import com.example.SplitLoop.user.domain.model.User;
-import com.example.SplitLoop.user.mapper.UserMapper;
+import com.example.SplitLoop.user.infrastructure.persistence.mapper.UserPersistenceMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 public class SpringSecurityAuthAdapter implements AuthenticationPort {
 
     private final AuthenticationManager authenticationManager;
-    private final UserMapper userMapper; // Convierte UserEntity -> User (Dominio)
+    private final UserPersistenceMapper userPersistenceMapper; // Convierte UserEntity -> User (Dominio)
 
     @Override
     public User authenticate(String email, String password) {
@@ -23,7 +24,7 @@ public class SpringSecurityAuthAdapter implements AuthenticationPort {
                 new UsernamePasswordAuthenticationToken(email, password)
         );
 
-        UserEntity entity = (UserEntity) authentication.getPrincipal();
-        return userMapper.toDomain(entity);
+        CustomUserDetails entity = (CustomUserDetails) authentication.getPrincipal();
+        return userPersistenceMapper.toDomain(entity);
     }
 }

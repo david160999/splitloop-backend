@@ -1,40 +1,30 @@
 package com.example.SplitLoop.expense.domain.repository;
 
-import com.example.SplitLoop.expense.domain.entity.RecurringExpense;
-import com.example.SplitLoop.expense.domain.entity.RecurringExpenseStatus;
-import com.example.SplitLoop.group.domain.entity.Group;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import com.example.SplitLoop.expense.domain.model.RecurringExpense;
+import com.example.SplitLoop.expense.domain.model.RecurringExpenseStatus;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public interface RecurringExpenseRepository extends JpaRepository<RecurringExpense, UUID> {
+public interface RecurringExpenseRepository {
 
-    List<RecurringExpense> findByGroup(Group group);
+    RecurringExpense save(RecurringExpense recurringExpense);
 
-    List<RecurringExpense> findByGroupAndStatus(
-            Group group,
-            RecurringExpenseStatus status
-    );
+    Optional<RecurringExpense> findById(UUID id);
 
-    @Query("""
-                SELECT COUNT(r) > 0
-                FROM RecurringExpense r
-                WHERE r.group.id = :groupId
-                  AND r.status = :status
-            """)
-    boolean existsByGroupIdAndStatus(
-            UUID groupId,
-            RecurringExpenseStatus status
-    );
+    List<RecurringExpense> findByGroupId(UUID groupId);
 
-    int countByGroupAndStatus(Group group, RecurringExpenseStatus recurringExpenseStatus);
+    List<RecurringExpense> findByGroupIdAndStatus(UUID groupId, RecurringExpenseStatus status);
 
-    List<RecurringExpense> findByStatus(RecurringExpenseStatus recurringExpenseStatus);
+    boolean existsByGroupIdAndStatus(UUID groupId, RecurringExpenseStatus status);
 
-    List<RecurringExpense> findByStatusAndStartDateLessThanEqual(
-            RecurringExpenseStatus status,
-            LocalDate date);
+    int countByGroupIdAndStatus(UUID groupId, RecurringExpenseStatus status);
+
+    List<RecurringExpense> findByStatus(RecurringExpenseStatus status);
+
+    List<RecurringExpense> findByStatusAndStartDateLessThanEqual(RecurringExpenseStatus status, LocalDate date);
+
+    void deleteById(UUID id);
 }

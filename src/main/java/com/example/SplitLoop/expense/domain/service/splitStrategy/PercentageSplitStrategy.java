@@ -1,9 +1,12 @@
 package com.example.SplitLoop.expense.domain.service.splitStrategy;
 
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrence;
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplit;
-import com.example.SplitLoop.expense.domain.entity.ExpenseOccurrenceSplitStatus;
-import com.example.SplitLoop.expense.domain.entity.RecurringExpenseParticipant;
+import com.example.SplitLoop.expense.domain.model.ExpenseOccurrence;
+import com.example.SplitLoop.expense.domain.model.ExpenseOccurrenceSplit;
+import com.example.SplitLoop.expense.domain.model.RecurringExpenseParticipant;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceEntity;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.ExpenseOccurrenceSplitEntity;
+import com.example.SplitLoop.expense.domain.model.ExpenseOccurrenceSplitStatus;
+import com.example.SplitLoop.expense.infrastructure.persistence.entity.RecurringExpenseParticipantEntity;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -19,7 +22,7 @@ public class PercentageSplitStrategy implements SplitStrategy {
             ExpenseOccurrence occurrence,
             List<RecurringExpenseParticipant> participants) {
 
-        BigDecimal totalAmount = occurrence.getAmount();
+        BigDecimal totalAmount = occurrence.amount().amount();
 
         List<ExpenseOccurrenceSplit> splits = new ArrayList<>();
 
@@ -38,7 +41,7 @@ public class PercentageSplitStrategy implements SplitStrategy {
             } else {
 
                 amount = totalAmount
-                        .multiply(participant.getValue())
+                        .multiply(participant.value())
                         .divide(
                                 BigDecimal.valueOf(100),
                                 2,
@@ -47,12 +50,12 @@ public class PercentageSplitStrategy implements SplitStrategy {
                 accumulated = accumulated.add(amount);
             }
 
-            boolean paidBy = participant.getUser().equals(occurrence.getPaidBy());
+            boolean paidBy = participant.user().equals(occurrence.paidBy());
 
             splits.add(
                     ExpenseOccurrenceSplit.builder()
                             .occurrence(occurrence)
-                            .user(participant.getUser())
+                            .user(participant.user())
                             .amountOwed(amount)
                             .amountPaid(
                                     paidBy

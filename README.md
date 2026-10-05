@@ -51,108 +51,48 @@ El objetivo del proyecto es aplicar una arquitectura backend mantenible y orient
 
 ---
 
-# 🏗️ Architecture
+## 🏛️ Arquitectura del Sistema (Clean Architecture)
 
-SplitLoop utiliza una **arquitectura orientada al dominio (domain-oriented architecture)**.
-
-En lugar de organizar toda la aplicación exclusivamente por capas técnicas, cada dominio mantiene sus propias responsabilidades y componentes.
+El proyecto sigue una estructura circular concéntrica donde las dependencias fluyen siempre de afuera hacia adentro: **Infrastructure → Application → Domain**.
 
 ```text
-src/main/java/com/example/SplitLoop
-│
-├── auth/
-│   ├── application/
-│   ├── controller/
-│   ├── domain/
-│   └── exception/
-│
-├── balance/
-│
-├── common/
-│
-├── expense/
-│   ├── application/
-│   ├── controller/
-│   ├── domain/
-│   ├── exception/
-│   ├── infrastructure/
-│   ├── mapper/
-│   └── scheduler/
-│
-├── group/
-│   ├── application/
-│   ├── controller/
-│   ├── domain/
-│   ├── exception/
-│   └── mapper/
-│
-├── payment/
-│
-├── userEntity/
-│
-└── SplitLoopApplication.java
+com.splitloop
+ ├── domain/                 # 🟩 CAPA DE DOMINIO (Reglas de Negocio Centrales)
+ │    ├── model/             # Entidades del dominio (p. ej., User.java)
+ │    └── repository/        # Interfaces de repositorios (Contratos)
+ │
+ ├── application/            # 🟦 CAPA DE APLICACIÓN (Casos de Uso)
+ │    ├── service/           # Lógica de aplicación / Casos de uso (UserService, AuthService)
+ │    └── dto/               # Objetos de transferencia de datos (Data Transfer Objects)
+ │
+ └── infrastructure/         # 🟥 CAPA DE INFRAESTRUCTURA (Detalles Técnicos y Controladores)
+      ├── persistence/       # Implementación de repositorios (JPA, DB Access)
+      ├── rest/              # Controladores y Endpoints HTTP (UserController, AuthController)
+      └── config/            # Configuración de entorno (.env), seguridad y beans
 ```
-
-### Domain-oriented approach
-
-Cada dominio es responsable de sus propias reglas de negocio y casos de uso.
-
-Por ejemplo:
-
-```text
-Expense
-│
-├── Controller
-│
-├── Application
-│   └── Business logic / use cases
-│
-├── Domain
-│   └── Entities / domain rules
-│
-├── Infrastructure
-│   └── Persistence / external concerns
-│
-├── Mapper
-│
-├── Exception
-│
-└── Scheduler
-    └── Recurring expenses
-```
-
-Esta organización permite mantener el código desacoplado y facilita la incorporación de nuevos dominios y funcionalidades.
 
 ---
 
-# 🧩 Main Domains
+## 🧩 Descripción de Capas
 
-Los principales dominios de la aplicación son:
+### 1. 🟩 Domain (Dominio)
+* **Responsabilidad:** Es el núcleo del sistema y no depende de ningún marco de trabajo (framework) ni librería externa.
+* **Componentes:**
+    * **`Model`:** Entidades principales del negocio (`User`, etc.) con sus reglas internas.
+    * **`Repository`:** Interfaces que definen los contratos para el acceso a datos sin acoplarse a tecnologías específicas.
 
-```text
-                    ┌─────────────┐
-                    │    User     │
-                    └──────┬──────┘
-                           │
-                           ▼
-                    ┌─────────────┐
-                    │    Group    │
-                    └──────┬──────┘
-                           │
-             ┌─────────────┼─────────────┐
-             ▼             ▼             ▼
-        ┌─────────┐   ┌──────────┐   ┌─────────┐
-        │ Expense │   │ Balance  │   │ Payment │
-        └────┬────┘   └──────────┘   └─────────┘
-             │
-             ▼
-        ┌──────────────┐
-        │  Recurring   │
-        │   Expenses   │
-        └──────────────┘
-```
+### 2. 🟦 Application (Aplicación)
+* **Responsabilidad:** Coordina el flujo de datos hacia y desde las entidades de dominio, implementando los casos de uso específicos de la aplicación.
+* **Componentes:**
+    * **`Service`:** Servicios como `UserService` y `AuthService` que orquestan las acciones del sistema.
+    * **`DTO`:** Objetos para desacoplar los modelos de datos expuestos hacia el exterior de las entidades internas.
 
-La aplicación modela las principales relaciones necesarias para gestionar gastos compartidos y calcular las cantidades que cada usuario debe pagar o recibir.
+### 3. 🟥 Infrastructure (Infraestructura)
+* **Responsabilidad:** Contiene los detalles técnicos, entregas, persistencia e integraciones con librerías o frameworks externos.
+* **Componentes:**
+    * **`Rest`:** Controladores de la API (`UserController`, `AuthController`) encargados del mapeo de solicitudes HTTP.
+    * **`Persistence`:** Implementaciones concretas de la capa de persistencia (Bases de datos, JPA/Hibernate).
+    * **`Config`:** Carga de variables de entorno mediante `.env` y configuraciones del contenedor de dependencias.
 
 ---
 
@@ -557,8 +497,8 @@ splitloop-backend/
 │   │   │       ├── balance/
 │   │   │       ├── common/
 │   │   │       ├── expense/
-│   │   │       ├── group/
-│   │   │       ├── payment/
+│   │   │       ├── groupEntity/
+│   │   │       ├── paymentEntity/
 │   │   │       └── userEntity/
 │   │   │
 │   │   └── resources/

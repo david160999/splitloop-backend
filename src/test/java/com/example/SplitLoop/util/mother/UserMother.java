@@ -1,7 +1,7 @@
 package com.example.SplitLoop.util.mother;
 
-import com.example.SplitLoop.user.domain.entity.Role;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.Role;
+import com.example.SplitLoop.user.infrastructure.persistence.entity.UserEntity;
 import com.example.SplitLoop.user.domain.model.User;
 
 import java.util.UUID;
@@ -56,33 +56,33 @@ public final class UserMother {
     public static UserEntity userEntity() {
         User domain = userModel();
         return UserEntity.builder()
-                .id(domain.getId())
-                .username(domain.getUsername())
-                .email(domain.getEmail())
-                .password(domain.getPassword())
-                .role(domain.getRole())
+                .id(domain.id())
+                .username(domain.username())
+                .email(domain.email())
+                .password(domain.password())
+                .role(domain.role())
                 .build();
     }
 
     public static UserEntity anotherUserEntity() {
         User domain = anotherUserModel();
         return UserEntity.builder()
-                .id(domain.getId())
-                .username(domain.getUsername())
-                .email(domain.getEmail())
-                .password(domain.getPassword())
-                .role(domain.getRole())
+                .id(domain.id())
+                .username(domain.username())
+                .email(domain.email())
+                .password(domain.password())
+                .role(domain.role())
                 .build();
     }
 
     public static UserEntity withCredentialsEntity(String email, String encodedPassword) {
         User domain = userModel();
         return UserEntity.builder()
-                .id(domain.getId())
-                .username(domain.getUsername())
+                .id(domain.id())
+                .username(domain.username())
                 .email(email)
                 .password(encodedPassword)
-                .role(domain.getRole())
+                .role(domain.role())
                 .build();
     }
 }

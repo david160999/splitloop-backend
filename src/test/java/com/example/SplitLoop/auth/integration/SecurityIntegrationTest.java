@@ -1,6 +1,6 @@
 package com.example.SplitLoop.auth.integration;
 
-import com.example.SplitLoop.util.integration.BaseIntegrationTest;
+import com.example.SplitLoop.util.support.BaseIntegrationTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

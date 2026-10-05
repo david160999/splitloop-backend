@@ -1,48 +1,40 @@
 package com.example.SplitLoop.group.domain.service;
 
-import com.example.SplitLoop.group.domain.entity.Group;
-import com.example.SplitLoop.group.domain.entity.GroupMember;
-import com.example.SplitLoop.group.domain.entity.MemberRole;
-import com.example.SplitLoop.user.domain.entity.UserEntity;
+import com.example.SplitLoop.group.domain.exception.UserNotInGroupException;
+import com.example.SplitLoop.group.domain.model.Group;
+import com.example.SplitLoop.group.domain.model.GroupMember;
+import com.example.SplitLoop.group.domain.repository.GroupMemberRepository;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface GroupService {
+public class GroupService {
 
-    //Group Service//
-    Group createGroup(UserEntity creator, String name);
+    private final GroupMemberRepository memberRepository;
 
-    void updateGroup(Group group, String name, String description);
+    public GroupService(GroupMemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
+    }
 
-    void deleteGroup(Group group, UserEntity currentUserEntity);
+    public GroupMember getMember(UUID groupId, UUID userId) {
 
-    void removeMember(Group group, UserEntity requester, UserEntity memberToRemove);
+        return memberRepository
+                .findByGroupIdAndUserId(groupId, userId)
+                .orElseThrow(() -> new UserNotInGroupException(userId, groupId));
+    }
 
-    void leaveGroup(Group group, UserEntity userEntity);
+    public boolean isMember(UUID groupId, UUID userId) {
+        return memberRepository.existsByGroupIdAndUserId(groupId, userId);
+    }
 
-    void validateGroupDeletion(Group group);
+    public void validateMember(UUID groupId, UUID userId) {
 
-    List<Group> getGroupsByUserId(UUID userId);
+        if (!isMember(groupId, userId)) {
+            throw new UserNotInGroupException(userId, groupId);
+        }
+    }
 
-    //GroupMember Service//
-    GroupMember addMember(Group group, UserEntity userEntity, MemberRole role);
-
-    GroupMember updateMemberRole(Group group, UserEntity requestedBy, UserEntity targetUserEntity, MemberRole newRole);
-
-    GroupMember getMember(Group group, UserEntity userEntity);
-
-    void validateLastAdmin(Group group, GroupMember member);
-
-    boolean isMember(UUID groupId, UUID userId);
-
-    long countAdmins(UUID groupId);
-
-    boolean isCreator(Group group, UUID userId);
-
-    void validateMember(UUID groupId, UUID userId);
-
-    List<GroupMember> getMembers(Group group);
-
-    GroupMember getCurrentMember(Group group);
+    public List<GroupMember> getMembers(Group group) {
+        return memberRepository.findByGroupId(group.id());
+    }
 }
